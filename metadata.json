@@ -1,0 +1,6 @@
+{
+  "name": "Tražilica Spremljenih Stvari",
+  "description": "Aplikacija za jednostavno spremanje, organizaciju i brzo pronalaženje stvari po prostorijama, kutijama i policama.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
