@@ -45,9 +45,19 @@ export function cleanSearchQuery(query: string): string {
     'ima li',
     'pronadi',
     'pronađi',
+    'where is my',
+    'where are my',
     'where is',
     'where are',
-    'where did i put'
+    'where did i put my',
+    'where did i put',
+    'where did i leave',
+    'where did i store',
+    'find my',
+    'find',
+    'looking for',
+    'show me my',
+    'show me',
   ];
 
   for (const prefix of prefixes) {

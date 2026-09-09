@@ -1,6 +1,7 @@
 import React from 'react';
 import { Item, ItemStatus } from '../types';
 import { MapPin, Box, Tag, ArrowRightLeft, Edit, Clock, UserCheck, AlertTriangle, CheckCircle2, QrCode } from 'lucide-react';
+import { useLanguage } from '../i18n/LanguageContext';
 
 interface ItemCardProps {
   item: Item;
@@ -20,38 +21,42 @@ export const ItemCard: React.FC<ItemCardProps> = ({
   onTagClick,
   onShowBoxLabel,
 }) => {
+  const { t, getCategoryName } = useLanguage();
+
   const getStatusBadge = () => {
     switch (item.status) {
       case 'available':
         return (
           <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-md">
             <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-            Na mjestu
+            {t.status.available}
           </span>
         );
       case 'in_use':
         return (
           <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-medium bg-sky-50 text-sky-700 border border-sky-200 rounded-md">
             <Clock className="w-3 h-3 text-sky-600" />
-            U upotrebi
+            {t.status.in_use}
           </span>
         );
       case 'loaned':
         return (
           <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-medium bg-amber-50 text-amber-800 border border-amber-200 rounded-md">
             <UserCheck className="w-3 h-3 text-amber-600" />
-            Posuđeno
+            {t.status.loaned}
           </span>
         );
       case 'missing':
         return (
           <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-medium bg-rose-50 text-rose-700 border border-rose-200 rounded-md">
             <AlertTriangle className="w-3 h-3 text-rose-600" />
-            Zagubljeno
+            {t.status.missing}
           </span>
         );
     }
   };
+
+  const localizedCategory = getCategoryName(item.category);
 
   return (
     <div className="group relative bg-white rounded-2xl border border-slate-200 shadow-xs hover:shadow-md hover:border-slate-300 transition-all duration-200 overflow-hidden flex flex-col justify-between">
@@ -65,7 +70,7 @@ export const ItemCard: React.FC<ItemCardProps> = ({
         {/* Category & Status Row */}
         <div className="flex items-center justify-between gap-2 mb-2.5">
           <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider truncate">
-            {item.category}
+            {localizedCategory}
           </span>
           <div className="shrink-0">{getStatusBadge()}</div>
         </div>
@@ -76,7 +81,7 @@ export const ItemCard: React.FC<ItemCardProps> = ({
             {item.name}
           </h3>
           <span className="shrink-0 text-xs font-semibold px-2 py-0.5 bg-slate-100 text-slate-700 rounded-full border border-slate-200">
-            {item.quantity} kom.
+            {item.quantity} {t.itemCard.pcs}
           </span>
         </div>
 
@@ -98,14 +103,14 @@ export const ItemCard: React.FC<ItemCardProps> = ({
 
           {item.subLocation && (
             <p className="text-[11px] text-amber-800/90 pl-5 italic flex items-center gap-1">
-              <span>Točna pozicija:</span>
+              <span>{t.itemCard.exactPosition}</span>
               <span className="font-medium text-slate-800">{item.subLocation}</span>
             </p>
           )}
 
           {item.containerCode && (
             <div className="pl-5 pt-0.5 flex items-center justify-between text-[10px] font-mono text-slate-500">
-              <span>KOD: {item.containerCode}</span>
+              <span>{t.itemCard.code} {item.containerCode}</span>
               {onShowBoxLabel && (
                 <button
                   type="button"
@@ -113,7 +118,7 @@ export const ItemCard: React.FC<ItemCardProps> = ({
                   className="inline-flex items-center gap-1 text-[11px] font-sans font-medium text-amber-700 hover:text-amber-900 hover:underline"
                 >
                   <QrCode className="w-3 h-3" />
-                  Naljepnica
+                  {t.itemCard.label}
                 </button>
               )}
             </div>
@@ -153,30 +158,30 @@ export const ItemCard: React.FC<ItemCardProps> = ({
             <button
               type="button"
               onClick={() => onStatusChange(item.id, 'in_use')}
-              title="Označi da je izvađeno / u upotrebi"
+              title={t.itemCard.takeItem}
               className="text-[11px] font-medium text-slate-600 hover:text-sky-700 hover:bg-sky-50 px-2 py-1 rounded-md transition-colors"
             >
-              Uzmi stvar
+              {t.itemCard.takeItem}
             </button>
           ) : (
             <button
               type="button"
               onClick={() => onStatusChange(item.id, 'available')}
-              title="Vrati stvar na mjesto"
+              title={t.itemCard.putBack}
               className="text-[11px] font-medium text-emerald-700 hover:bg-emerald-50 px-2 py-1 rounded-md transition-colors"
             >
-              Vrati na mjesto
+              {t.itemCard.putBack}
             </button>
           )}
 
           <button
             type="button"
             onClick={() => onMove(item)}
-            title="Premjesti u drugu sobu ili kutiju"
+            title={t.itemCard.move}
             className="text-[11px] font-medium text-slate-600 hover:text-amber-800 hover:bg-amber-50 px-2 py-1 rounded-md transition-colors inline-flex items-center gap-1"
           >
             <ArrowRightLeft className="w-3 h-3" />
-            Premjesti
+            {t.itemCard.move}
           </button>
         </div>
 
@@ -184,7 +189,7 @@ export const ItemCard: React.FC<ItemCardProps> = ({
           type="button"
           onClick={() => onEdit(item)}
           className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-200 rounded-md transition-colors"
-          title="Uredi pojedinosti"
+          title={t.itemCard.edit}
         >
           <Edit className="w-4 h-4" />
         </button>

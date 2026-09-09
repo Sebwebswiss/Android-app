@@ -1,6 +1,6 @@
 import React from 'react';
-import { Search, X, Sparkles, Filter, Plus, Compass } from 'lucide-react';
-import { ItemStatus } from '../types';
+import { Search, X, Plus, Compass } from 'lucide-react';
+import { useLanguage } from '../i18n/LanguageContext';
 
 interface FinderHeroProps {
   searchQuery: string;
@@ -25,14 +25,14 @@ export const FinderHero: React.FC<FinderHeroProps> = ({
   totalItemsCount,
   filteredCount,
 }) => {
-  const exampleSearches = [
-    'lampice',
-    'bušilica',
-    'putovnice',
-    'kablovi',
-    'zimske jakne',
-    'šator',
-    'prva pomoć',
+  const { t } = useLanguage();
+
+  const statusOptions = [
+    { id: 'all', label: t.finder.statusAll },
+    { id: 'available', label: t.finder.statusAvailable },
+    { id: 'in_use', label: t.finder.statusInUse },
+    { id: 'loaned', label: t.finder.statusLoaned },
+    { id: 'missing', label: t.finder.statusMissing },
   ];
 
   return (
@@ -41,13 +41,13 @@ export const FinderHero: React.FC<FinderHeroProps> = ({
         {/* Title */}
         <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-100/80 text-amber-900 rounded-full text-xs font-semibold uppercase tracking-wider mb-3">
           <Compass className="w-3.5 h-3.5 text-amber-700" />
-          Gdje si što spremio?
+          {t.finder.heroTag}
         </div>
         <h1 className="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight mb-2">
-          Pronađi bilo koju spremljenu stvar u trenu
+          {t.finder.heroTitle}
         </h1>
         <p className="text-sm sm:text-base text-slate-600 max-w-xl mx-auto mb-6">
-          Pretraži po nazivu, kutiji, polici, sobi ili oznaci. Zaboravi prekopavanje ormara i tavana.
+          {t.finder.heroSubtitle}
         </p>
 
         {/* Big Search Input */}
@@ -58,7 +58,7 @@ export const FinderHero: React.FC<FinderHeroProps> = ({
               type="text"
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
-              placeholder="Upiši npr. 'gdje su mi lampice?', 'bušilica', 'tavan', 'Kutija #3'..."
+              placeholder={t.finder.searchPlaceholder}
               className="w-full bg-transparent text-sm sm:text-base text-slate-900 placeholder:text-slate-400 focus:outline-hidden"
               autoFocus
             />
@@ -67,7 +67,7 @@ export const FinderHero: React.FC<FinderHeroProps> = ({
                 type="button"
                 onClick={() => onSearchChange('')}
                 className="p-1 text-slate-400 hover:text-slate-700 rounded-lg transition-colors"
-                title="Očisti pretragu"
+                title={t.finder.clearSearch}
               >
                 <X className="w-5 h-5" />
               </button>
@@ -77,14 +77,14 @@ export const FinderHero: React.FC<FinderHeroProps> = ({
 
         {/* Quick Suggestion Pills */}
         <div className="mt-3 flex items-center justify-center flex-wrap gap-1.5 text-xs text-slate-500">
-          <span className="font-medium text-slate-600 mr-1">Brzi primjeri:</span>
-          {exampleSearches.map((term) => (
+          <span className="font-medium text-slate-600 mr-1">{t.finder.quickExamplesLabel}</span>
+          {t.finder.examples.map((term) => (
             <button
               key={term}
               type="button"
               onClick={() => onSearchChange(term)}
               className={`px-2.5 py-1 rounded-lg border transition-all ${
-                searchQuery.toLowerCase() === term
+                searchQuery.toLowerCase() === term.toLowerCase()
                   ? 'bg-amber-600 text-white border-amber-600 font-semibold shadow-xs'
                   : 'bg-white/80 hover:bg-amber-50 text-slate-700 border-slate-200 hover:border-amber-300'
               }`}
@@ -97,13 +97,8 @@ export const FinderHero: React.FC<FinderHeroProps> = ({
         {/* Status Filter Chips and Add Button */}
         <div className="mt-6 flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-amber-200/50">
           <div className="flex flex-wrap items-center gap-1.5 text-xs">
-            <span className="text-slate-500 font-medium mr-1">Status:</span>
-            {[
-              { id: 'all', label: 'Sve stvari' },
-              { id: 'available', label: 'Na mjestu' },
-              { id: 'in_use', label: 'U upotrebi' },
-              { id: 'loaned', label: 'Posuđeno' },
-            ].map((f) => (
+            <span className="text-slate-500 font-medium mr-1">{t.finder.statusLabel}</span>
+            {statusOptions.map((f) => (
               <button
                 key={f.id}
                 type="button"
@@ -121,7 +116,7 @@ export const FinderHero: React.FC<FinderHeroProps> = ({
 
           <div className="flex items-center gap-2">
             <span className="text-xs text-slate-500 font-mono">
-              Prikazano <strong>{filteredCount}</strong> od <strong>{totalItemsCount}</strong>
+              {t.finder.showingCount} <strong>{filteredCount}</strong> / <strong>{totalItemsCount}</strong>
             </span>
             <button
               type="button"
@@ -129,7 +124,7 @@ export const FinderHero: React.FC<FinderHeroProps> = ({
               className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-white bg-amber-600 hover:bg-amber-700 rounded-xl shadow-xs transition-colors"
             >
               <Plus className="w-3.5 h-3.5" />
-              Spremi novu stvar
+              {t.finder.saveNewItem}
             </button>
           </div>
         </div>

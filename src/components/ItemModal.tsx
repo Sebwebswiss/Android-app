@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Item, Room, CategoryDefinition, ItemStatus } from '../types';
 import { X, Plus, Trash2, Camera, MapPin, Box, Tag, AlertCircle, Check, Info } from 'lucide-react';
+import { useLanguage } from '../i18n/LanguageContext';
 
 interface ItemModalProps {
   isOpen: boolean;
@@ -25,6 +26,7 @@ export const ItemModal: React.FC<ItemModalProps> = ({
   defaultRoomId,
   defaultContainer,
 }) => {
+  const { t, getRoomName, getCategoryName } = useLanguage();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [quantity, setQuantity] = useState(1);
@@ -84,7 +86,7 @@ export const ItemModal: React.FC<ItemModalProps> = ({
 
     // Check size limit (max ~3MB)
     if (file.size > 3 * 1024 * 1024) {
-      alert('Molimo odaberite sliku manju od 3MB.');
+      alert(t.itemModal.photoSizeWarning);
       return;
     }
 
@@ -100,13 +102,13 @@ export const ItemModal: React.FC<ItemModalProps> = ({
     const newErrors: Record<string, string> = {};
 
     if (!name.trim()) {
-      newErrors.name = 'Naziv predmeta je obavezan.';
+      newErrors.name = t.itemModal.nameRequired;
     }
     if (!roomId) {
-      newErrors.roomId = 'Odaberite prostoriju.';
+      newErrors.roomId = t.moveModal.newRoomLabel;
     }
     if (!container.trim()) {
-      newErrors.container = 'Upišite naziv kutije, police ili ladice.';
+      newErrors.container = t.itemModal.containerRequired;
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -155,10 +157,10 @@ export const ItemModal: React.FC<ItemModalProps> = ({
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/80">
           <div>
             <h2 className="text-lg font-bold text-slate-900">
-              {itemToEdit ? 'Uredi spremljenu stvar' : 'Spremi novu stvar'}
+              {itemToEdit ? t.itemModal.editTitle : t.itemModal.newTitle}
             </h2>
             <p className="text-xs text-slate-500">
-              Zabilježi točnu lokaciju, kutiju i pojedinosti kako bi je lako pronašao kasnije
+              {t.itemModal.subLocationHint}
             </p>
           </div>
           <button
@@ -175,13 +177,13 @@ export const ItemModal: React.FC<ItemModalProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
             <div className="sm:col-span-3">
               <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                Naziv predmeta *
+                {t.itemModal.nameLabel}
               </label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="npr. Udarna bušilica, Božićne lampice, Putovnice..."
+                placeholder={t.itemModal.namePlaceholder}
                 className={`w-full px-3.5 py-2.5 rounded-xl border text-sm text-slate-800 placeholder:text-slate-400 focus:outline-hidden focus:ring-2 focus:ring-amber-500/30 ${
                   errors.name ? 'border-red-500 bg-red-50/30' : 'border-slate-300 focus:border-amber-500'
                 }`}
@@ -191,7 +193,7 @@ export const ItemModal: React.FC<ItemModalProps> = ({
 
             <div>
               <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                Količina
+                {t.itemModal.quantityLabel}
               </label>
               <input
                 type="number"
@@ -207,13 +209,13 @@ export const ItemModal: React.FC<ItemModalProps> = ({
           <div className="p-4 bg-amber-50/60 rounded-xl border border-amber-200/70 space-y-3.5">
             <div className="flex items-center gap-2 text-amber-900 font-semibold text-xs uppercase tracking-wider">
               <MapPin className="w-4 h-4 text-amber-700" />
-              Gdje je spremljeno? (Glavna lokacija)
+              {t.allItems.filterRoom}:
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
               <div>
                 <label className="block text-xs font-medium text-slate-700 mb-1">
-                  Prostorija / Lokacija *
+                  {t.itemModal.roomLabel}
                 </label>
                 <select
                   value={roomId}
@@ -222,7 +224,7 @@ export const ItemModal: React.FC<ItemModalProps> = ({
                 >
                   {rooms.map((room) => (
                     <option key={room.id} value={room.id}>
-                      {room.name}
+                      {getRoomName(room)}
                     </option>
                   ))}
                 </select>
@@ -230,13 +232,13 @@ export const ItemModal: React.FC<ItemModalProps> = ({
 
               <div>
                 <label className="block text-xs font-medium text-slate-700 mb-1">
-                  Kutija / Ormar / Polica / Ladica *
+                  {t.itemModal.containerLabel}
                 </label>
                 <input
                   type="text"
                   value={container}
                   onChange={(e) => setContainer(e.target.value)}
-                  placeholder="npr. Kutija #03, Metalni ormar, Ladica 2..."
+                  placeholder={t.itemModal.containerPlaceholder}
                   className={`w-full px-3.5 py-2.5 rounded-xl border bg-white text-sm text-slate-800 placeholder:text-slate-400 focus:outline-hidden focus:ring-2 focus:ring-amber-500/30 ${
                     errors.container ? 'border-red-500 bg-red-50/30' : 'border-slate-300 focus:border-amber-500'
                   }`}
@@ -248,26 +250,26 @@ export const ItemModal: React.FC<ItemModalProps> = ({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
               <div>
                 <label className="block text-xs font-medium text-slate-700 mb-1">
-                  Točna pozicija unutar prostorije (neobavezno)
+                  {t.itemModal.subLocationLabel}
                 </label>
                 <input
                   type="text"
                   value={subLocation}
                   onChange={(e) => setSubLocation(e.target.value)}
-                  placeholder="npr. Iza dimnjaka na desnoj strani, Gornja polica"
+                  placeholder={t.itemModal.subLocationPlaceholder}
                   className="w-full px-3.5 py-2 rounded-xl border border-slate-300 bg-white text-xs text-slate-800 placeholder:text-slate-400 focus:outline-hidden focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
                 />
               </div>
 
               <div>
                 <label className="block text-xs font-medium text-slate-700 mb-1">
-                  Oznaka / Kod kutije (za naljepnice)
+                  {t.itemModal.codeLabel}
                 </label>
                 <input
                   type="text"
                   value={containerCode}
                   onChange={(e) => setContainerCode(e.target.value.toUpperCase())}
-                  placeholder="npr. KUT-TAV-01, ORM-GAR-02"
+                  placeholder={t.itemModal.codePlaceholder}
                   className="w-full px-3.5 py-2 rounded-xl border border-slate-300 bg-white font-mono text-xs text-slate-800 placeholder:text-slate-400 focus:outline-hidden focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
                 />
               </div>
@@ -278,7 +280,7 @@ export const ItemModal: React.FC<ItemModalProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                Kategorija
+                {t.itemModal.categoryLabel}
               </label>
               <select
                 value={category}
@@ -287,7 +289,7 @@ export const ItemModal: React.FC<ItemModalProps> = ({
               >
                 {categories.map((c) => (
                   <option key={c.id} value={c.name}>
-                    {c.name}
+                    {getCategoryName(c.name)}
                   </option>
                 ))}
               </select>
@@ -295,17 +297,17 @@ export const ItemModal: React.FC<ItemModalProps> = ({
 
             <div>
               <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                Status predmeta
+                {t.itemModal.statusLabel}
               </label>
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value as ItemStatus)}
                 className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-sm text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
               >
-                <option value="available">Na svom mjestu (spremno)</option>
-                <option value="in_use">Trenutno u upotrebi (izvađeno)</option>
-                <option value="loaned">Posuđeno nekome</option>
-                <option value="missing">Zagubljeno / Traži se</option>
+                <option value="available">{t.status.available}</option>
+                <option value="in_use">{t.status.in_use}</option>
+                <option value="loaned">{t.status.loaned}</option>
+                <option value="missing">{t.status.missing}</option>
               </select>
             </div>
           </div>
@@ -314,13 +316,13 @@ export const ItemModal: React.FC<ItemModalProps> = ({
           {status === 'loaned' && (
             <div className="p-3 bg-amber-50 border border-amber-300 rounded-xl">
               <label className="block text-xs font-semibold text-amber-900 mb-1">
-                Kome je posuđeno i kada?
+                {t.itemModal.loanedToLabel}
               </label>
               <input
                 type="text"
                 value={loanedTo}
                 onChange={(e) => setLoanedTo(e.target.value)}
-                placeholder="npr. Susjed Damir - posudio za popravak bicikla 15.03."
+                placeholder={t.itemModal.loanedToPlaceholder}
                 className="w-full px-3 py-2 rounded-lg border border-amber-300 text-xs bg-white text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
               />
             </div>
@@ -330,20 +332,20 @@ export const ItemModal: React.FC<ItemModalProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
             <div className="sm:col-span-3">
               <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                Oznake / Ključne riječi (odvojene zarezom)
+                {t.itemModal.tagsLabel}
               </label>
               <input
                 type="text"
                 value={tagsString}
                 onChange={(e) => setTagsString(e.target.value)}
-                placeholder="npr. lampice, kabel, drvce, zima, božić"
+                placeholder={t.itemModal.tagsPlaceholder}
                 className="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-hidden focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
               />
             </div>
 
             <div>
               <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                Boja kutije / oznake
+                {t.itemModal.colorLabel}
               </label>
               <div className="flex items-center gap-2 mt-1">
                 <input
@@ -360,26 +362,26 @@ export const ItemModal: React.FC<ItemModalProps> = ({
           {/* Description & Notes */}
           <div>
             <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-              Opis predmeta ili što sve sadrži
+              {t.itemModal.descLabel}
             </label>
             <textarea
               rows={2}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="npr. 4 paketa LED lampica, set rezervnih svrdla, plava fascikla..."
+              placeholder={t.itemModal.descPlaceholder}
               className="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-hidden focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
             />
           </div>
 
           <div>
             <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-              Dodatna napomena / podsjetnik
+              {t.itemModal.notesLabel}
             </label>
             <input
               type="text"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder="npr. Paziti na staklo, potrebno kupiti nove baterije..."
+              placeholder={t.itemModal.notesPlaceholder}
               className="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-xs text-slate-800 placeholder:text-slate-400 focus:outline-hidden focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
             />
           </div>
@@ -387,17 +389,17 @@ export const ItemModal: React.FC<ItemModalProps> = ({
           {/* Photo upload / preview */}
           <div>
             <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-              Fotografija predmeta ili kutije (neobavezno)
+              {t.itemModal.photoLabel}
             </label>
             <div className="flex items-center gap-4">
               {photoUrl ? (
                 <div className="relative w-20 h-20 rounded-xl overflow-hidden border border-slate-200 shadow-xs shrink-0">
-                  <img src={photoUrl} alt="Pregled" className="w-full h-full object-cover" />
+                  <img src={photoUrl} alt="Preview" className="w-full h-full object-cover" />
                   <button
                     type="button"
                     onClick={() => setPhotoUrl(undefined)}
                     className="absolute top-1 right-1 p-1 bg-red-600 text-white rounded-full hover:bg-red-700 transition-colors shadow-xs"
-                    title="Ukloni sliku"
+                    title={t.itemModal.removePhotoBtn}
                   >
                     <X className="w-3 h-3" />
                   </button>
@@ -405,7 +407,7 @@ export const ItemModal: React.FC<ItemModalProps> = ({
               ) : (
                 <label className="flex flex-col items-center justify-center w-24 h-20 border-2 border-dashed border-slate-300 rounded-xl cursor-pointer hover:border-amber-500 hover:bg-amber-50/30 transition-colors">
                   <Camera className="w-6 h-6 text-slate-400" />
-                  <span className="text-[10px] text-slate-500 mt-1 font-medium">Dodaj sliku</span>
+                  <span className="text-[10px] text-slate-500 mt-1 font-medium">{t.itemModal.uploadPhotoBtn}</span>
                   <input
                     type="file"
                     accept="image/*"
@@ -414,9 +416,6 @@ export const ItemModal: React.FC<ItemModalProps> = ({
                   />
                 </label>
               )}
-              <p className="text-xs text-slate-500">
-                Možeš slikati kutiju ili predmet kako bi ga na prvi pogled prepoznao.
-              </p>
             </div>
           </div>
 
@@ -426,7 +425,7 @@ export const ItemModal: React.FC<ItemModalProps> = ({
               <button
                 type="button"
                 onClick={() => {
-                  if (confirm(`Jeste li sigurni da želite obrisati predmet "${itemToEdit.name}"?`)) {
+                  if (confirm(`${t.itemModal.deleteConfirm} "${itemToEdit.name}"?`)) {
                     onDelete(itemToEdit.id);
                     onClose();
                   }
@@ -434,7 +433,7 @@ export const ItemModal: React.FC<ItemModalProps> = ({
                 className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors"
               >
                 <Trash2 className="w-4 h-4" />
-                Obriši predmet
+                {t.itemModal.deleteBtn}
               </button>
             ) : (
               <div />
@@ -446,14 +445,14 @@ export const ItemModal: React.FC<ItemModalProps> = ({
                 onClick={onClose}
                 className="px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-xl transition-colors"
               >
-                Odustani
+                {t.itemModal.cancelBtn}
               </button>
               <button
                 type="submit"
                 className="inline-flex items-center gap-1.5 px-5 py-2.5 text-xs font-semibold text-white bg-amber-600 hover:bg-amber-700 rounded-xl shadow-xs transition-colors"
               >
                 <Check className="w-4 h-4" />
-                {itemToEdit ? 'Spremi promjene' : 'Spremi predmet'}
+                {t.itemModal.saveBtn}
               </button>
             </div>
           </div>

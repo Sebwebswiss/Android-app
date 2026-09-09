@@ -3,6 +3,7 @@ import { Room, Item } from '../types';
 import { DynamicIcon } from './DynamicIcon';
 import { Box, MapPin, ChevronRight, Plus, QrCode, ArrowLeft } from 'lucide-react';
 import { ItemCard } from './ItemCard';
+import { useLanguage } from '../i18n/LanguageContext';
 
 interface LocationsViewProps {
   rooms: Room[];
@@ -23,10 +24,12 @@ export const LocationsView: React.FC<LocationsViewProps> = ({
   onShowBoxLabel,
   onAddNewItemInRoom,
 }) => {
+  const { t, getRoomName, getRoomDesc } = useLanguage();
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
   const [selectedContainer, setSelectedContainer] = useState<string | null>(null);
 
   const activeRoom = rooms.find(r => r.id === selectedRoomId);
+  const activeRoomLocalizedName = activeRoom ? getRoomName(activeRoom) : '';
 
   // Group items by container in selected room
   const itemsInRoom = selectedRoomId
@@ -53,10 +56,10 @@ export const LocationsView: React.FC<LocationsViewProps> = ({
               className="inline-flex items-center gap-1 font-medium text-slate-700 hover:text-amber-700 transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
-              Sve prostorije
+              {t.locations.allRoomsBreadcrumb}
             </button>
             <span>/</span>
-            <span className="font-bold text-slate-900">{activeRoom.name}</span>
+            <span className="font-bold text-slate-900">{activeRoomLocalizedName}</span>
             {selectedContainer && (
               <>
                 <span>/</span>
@@ -70,11 +73,11 @@ export const LocationsView: React.FC<LocationsViewProps> = ({
           <div className="flex items-center gap-2">
             {selectedContainer && (
               <button
-                onClick={() => onShowBoxLabel(selectedContainer, activeRoom.name)}
+                onClick={() => onShowBoxLabel(selectedContainer, activeRoomLocalizedName)}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors"
               >
                 <QrCode className="w-3.5 h-3.5 text-slate-700" />
-                Naljepnica kutije & QR
+                {t.locations.boxLabelAndQR}
               </button>
             )}
             <button
@@ -82,7 +85,7 @@ export const LocationsView: React.FC<LocationsViewProps> = ({
               className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-white bg-amber-600 hover:bg-amber-700 rounded-xl shadow-xs transition-colors"
             >
               <Plus className="w-3.5 h-3.5" />
-              Dodaj stvar ovdje
+              {t.locations.addItemInThisRoom}
             </button>
           </div>
         </div>
@@ -91,14 +94,14 @@ export const LocationsView: React.FC<LocationsViewProps> = ({
         <div className="bg-white p-4 rounded-2xl border border-slate-200">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
-              Kutije i spremišta u prostoriji ({containersInRoom.length}):
+              {t.locations.containersInRoomTitle} ({containersInRoom.length})
             </h3>
             {selectedContainer && (
               <button
                 onClick={() => setSelectedContainer(null)}
                 className="text-xs text-amber-700 hover:underline font-medium"
               >
-                Prikaži sve kutije
+                {t.locations.allContainersOption}
               </button>
             )}
           </div>
@@ -112,7 +115,7 @@ export const LocationsView: React.FC<LocationsViewProps> = ({
                   : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
               }`}
             >
-              Sve u {activeRoom.name} ({itemsInRoom.length})
+              {t.locations.allContainersOption} ({itemsInRoom.length})
             </button>
 
             {containersInRoom.map(c => {
@@ -145,16 +148,16 @@ export const LocationsView: React.FC<LocationsViewProps> = ({
         {itemsInSelectedContainer.length === 0 ? (
           <div className="text-center py-12 bg-white rounded-2xl border border-dashed border-slate-300 p-6">
             <Box className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-            <h4 className="font-semibold text-slate-700 text-sm">Ovdje još nema spremljenih stvari</h4>
+            <h4 className="font-semibold text-slate-700 text-sm">{t.locations.noItemsInRoom}</h4>
             <p className="text-xs text-slate-500 mt-1 mb-4">
-              Zabilježi što si stavio u ovu prostoriju ili kutiju.
+              {t.locations.addFirstItemInRoom} {activeRoomLocalizedName}.
             </p>
             <button
               onClick={() => onAddNewItemInRoom(activeRoom.id, selectedContainer || undefined)}
               className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-amber-600 hover:bg-amber-700 rounded-xl"
             >
               <Plus className="w-3.5 h-3.5" />
-              Spremi prvu stvar ovdje
+              {t.locations.addItemInThisRoom}
             </button>
           </div>
         ) : (
@@ -180,9 +183,9 @@ export const LocationsView: React.FC<LocationsViewProps> = ({
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold text-slate-900">Pregled po prostorijama i lokacijama</h2>
+          <h2 className="text-xl font-bold text-slate-900">{t.locations.title}</h2>
           <p className="text-xs text-slate-500 mt-0.5">
-            Odaberi sobu ili ostavu za pregled svih kutija i spremljenih predmeta
+            {t.locations.subtitle}
           </p>
         </div>
       </div>
@@ -191,6 +194,8 @@ export const LocationsView: React.FC<LocationsViewProps> = ({
         {rooms.map(room => {
           const roomItems = items.filter(it => it.roomId === room.id);
           const uniqueContainers = new Set(roomItems.map(it => it.container)).size;
+          const localizedName = getRoomName(room);
+          const localizedDesc = getRoomDesc(room);
 
           return (
             <div
@@ -210,19 +215,19 @@ export const LocationsView: React.FC<LocationsViewProps> = ({
                 </div>
 
                 <h3 className="font-bold text-base text-slate-900 group-hover:text-amber-900 transition-colors">
-                  {room.name}
+                  {localizedName}
                 </h3>
                 <p className="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">
-                  {room.description}
+                  {localizedDesc}
                 </p>
               </div>
 
               <div className="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-600">
                 <span className="font-semibold text-slate-900">
-                  {roomItems.length} {roomItems.length === 1 ? 'predmet' : 'predmeta'}
+                  {roomItems.length} {t.locations.itemsCountUnit}
                 </span>
                 <span className="text-slate-400 text-[11px]">
-                  {uniqueContainers} {uniqueContainers === 1 ? 'kutija/polica' : 'kutija/polica'}
+                  {uniqueContainers} {t.locations.boxesCountUnit}
                 </span>
               </div>
             </div>

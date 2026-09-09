@@ -13,6 +13,7 @@ import { MoveItemModal } from './components/MoveItemModal';
 import { BoxLabelModal } from './components/BoxLabelModal';
 import { BackupModal } from './components/BackupModal';
 import { DynamicIcon } from './components/DynamicIcon';
+import { LanguageProvider, useLanguage } from './i18n/LanguageContext';
 import {
   MapPin,
   Sparkles,
@@ -33,7 +34,9 @@ const STORAGE_KEYS = {
   CATEGORIES: 'spremljene_stvari_categories_v2',
 };
 
-export default function App() {
+function AppContent() {
+  const { t, getRoomName } = useLanguage();
+
   // Load state from localStorage with fallback to initial data
   const [items, setItems] = useState<Item[]>(() => {
     try {
@@ -293,7 +296,7 @@ export default function App() {
               <div className="p-4 sm:p-6 bg-amber-50 border-2 border-amber-300 rounded-2xl shadow-sm space-y-2">
                 <div className="flex items-center gap-2 text-xs font-bold text-amber-900 uppercase tracking-wider">
                   <Lightbulb className="w-4 h-4 text-amber-700" />
-                  Najbolje podudaranje:
+                  {t.finder.bestMatch}
                 </div>
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div>
@@ -302,7 +305,7 @@ export default function App() {
                     </h3>
                     <div className="flex items-center gap-2 text-sm text-amber-950 font-medium mt-1">
                       <MapPin className="w-4 h-4 text-amber-700 shrink-0" />
-                      <span>Spremljeno u:</span>
+                      <span>{t.finder.storedIn}</span>
                       <strong className="text-slate-900 underline decoration-amber-400 decoration-2">
                         {directHit.roomName}
                       </strong>
@@ -321,13 +324,13 @@ export default function App() {
                       onClick={() => handleOpenBoxLabel(directHit.container, directHit.roomName)}
                       className="px-3 py-1.5 text-xs font-semibold text-amber-900 bg-amber-200/80 hover:bg-amber-300 rounded-xl transition-colors"
                     >
-                      Prikaži kutiju & QR
+                      {t.finder.showBoxQR}
                     </button>
                     <button
                       onClick={() => handleOpenEditModal(directHit)}
                       className="px-3 py-1.5 text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 rounded-xl transition-colors"
                     >
-                      Otvori detalje
+                      {t.finder.openDetails}
                     </button>
                   </div>
                 </div>
@@ -341,10 +344,10 @@ export default function App() {
                   <Box className="w-6 h-6" />
                 </div>
                 <h3 className="text-base font-bold text-slate-800">
-                  {searchQuery ? `Nema rezultata za "${searchQuery}"` : 'Nema spremljenih stvari'}
+                  {searchQuery ? `${t.finder.noResultsTitle} "${searchQuery}"` : t.finder.emptyListTitle}
                 </h3>
                 <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto mb-5">
-                  Možda je predmet spremljen pod drugim imenom ili ga još nisi zabilježio u aplikaciju.
+                  {searchQuery ? t.finder.noResultsDesc : t.finder.emptyListDesc}
                 </p>
                 <button
                   type="button"
@@ -352,14 +355,14 @@ export default function App() {
                   className="inline-flex items-center gap-1.5 px-4 py-2.5 text-xs font-semibold text-white bg-amber-600 hover:bg-amber-700 rounded-xl shadow-xs transition-colors"
                 >
                   <Plus className="w-4 h-4" />
-                  Spremi ovaj predmet sada
+                  {t.finder.saveItemPrompt}
                 </button>
               </div>
             ) : (
               <div>
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-sm font-bold uppercase tracking-wider text-slate-500">
-                    {searchQuery ? `Rezultati pretrage (${filteredItems.length})` : 'Sve spremljene stvari'}
+                    {searchQuery ? `${t.finder.searchResultsHeading} (${filteredItems.length})` : t.finder.allSavedHeading}
                   </h2>
                 </div>
 
@@ -384,16 +387,16 @@ export default function App() {
               <div className="pt-8 border-t border-slate-200">
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <h2 className="text-base font-bold text-slate-900">Pretraži po prostorijama</h2>
+                    <h2 className="text-base font-bold text-slate-900">{t.finder.browseRoomsTitle}</h2>
                     <p className="text-xs text-slate-500">
-                      Klikni na sobu ili spremište za pregled svih kutija u njoj
+                      {t.finder.browseRoomsSubtitle}
                     </p>
                   </div>
                   <button
                     onClick={() => setCurrentView('by-location')}
                     className="text-xs font-semibold text-amber-700 hover:text-amber-800 flex items-center gap-1"
                   >
-                    Vidi sve sobe
+                    {t.finder.viewAllRooms}
                     <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
@@ -417,9 +420,9 @@ export default function App() {
                           <DynamicIcon name={r.iconName} className="w-5 h-5" />
                         </div>
                         <div className="overflow-hidden">
-                          <h4 className="font-bold text-sm text-slate-900 truncate">{r.name}</h4>
+                          <h4 className="font-bold text-sm text-slate-900 truncate">{getRoomName(r)}</h4>
                           <span className="text-[11px] text-slate-500 font-mono">
-                            {count} {count === 1 ? 'predmet' : 'predmeta'}
+                            {count} {count === 1 ? t.finder.itemCountSingular : t.finder.itemCountPlural}
                           </span>
                         </div>
                       </div>
@@ -525,12 +528,21 @@ export default function App() {
       {/* Footer */}
       <footer className="mt-auto py-6 border-t border-slate-200/80 bg-white text-center text-xs text-slate-500">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <span>Tražilica Spremljenih Stvari — organiziraj tavan, podrum, ormare i garažu</span>
+          <span>{t.footer.tagline}</span>
           <span className="font-mono text-[11px] text-slate-400">
-            Podaci se automatski spremaju lokalno u vašem pregledniku
+            {t.footer.storageNotice}
           </span>
         </div>
       </footer>
     </div>
   );
 }
+
+export default function App() {
+  return (
+    <LanguageProvider>
+      <AppContent />
+    </LanguageProvider>
+  );
+}
+
