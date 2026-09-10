@@ -836,9 +836,8 @@ function AppContent() {
         isOpen={isRoomModalOpen}
         onClose={() => setIsRoomModalOpen(false)}
         roomToEdit={roomToEdit}
-        existingRooms={rooms}
-        onSaveRoom={handleSaveRoom}
-        onDeleteRoom={handleDeleteRoom}
+        onSave={handleSaveRoom}
+        onDelete={handleDeleteRoom}
         itemsCountInRoom={
           roomToEdit
             ? items.filter((it) => it.roomId === roomToEdit.id).length
