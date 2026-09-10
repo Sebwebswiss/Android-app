@@ -1,6 +1,6 @@
 import React from 'react';
 import { ViewMode } from '../types';
-import { Grid, MapPin, Box, Plus, Database, Compass, PackageCheck, Languages } from 'lucide-react';
+import { Grid, MapPin, Box, Plus, Database, Compass, PackageCheck, Languages, Image as ImageIcon } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
 
 interface HeaderProps {
@@ -56,6 +56,18 @@ export const Header: React.FC<HeaderProps> = ({
             >
               <Compass className="w-4 h-4 text-amber-600" />
               {t.nav.finder}
+            </button>
+
+            <button
+              onClick={() => onViewChange('gallery')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                currentView === 'gallery'
+                  ? 'bg-white text-amber-900 shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+              }`}
+            >
+              <ImageIcon className="w-4 h-4 text-amber-600" />
+              {t.nav.gallery}
             </button>
 
             <button
@@ -157,6 +169,15 @@ export const Header: React.FC<HeaderProps> = ({
           >
             <Compass className="w-4 h-4" />
             <span>{t.nav.search}</span>
+          </button>
+          <button
+            onClick={() => onViewChange('gallery')}
+            className={`flex flex-col items-center gap-0.5 py-1 px-2 rounded-lg ${
+              currentView === 'gallery' ? 'text-amber-700 font-bold' : 'text-slate-500'
+            }`}
+          >
+            <ImageIcon className="w-4 h-4" />
+            <span>{t.nav.gallery}</span>
           </button>
           <button
             onClick={() => onViewChange('all-items')}

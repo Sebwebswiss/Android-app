@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, X, Plus, Compass } from 'lucide-react';
+import { Search, X, Plus, Compass, Image as ImageIcon } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
 
 interface FinderHeroProps {
@@ -12,6 +12,7 @@ interface FinderHeroProps {
   selectedCategory: string;
   onSelectedCategoryChange: (category: string) => void;
   onAddNew: () => void;
+  onOpenGallery?: () => void;
   totalItemsCount: number;
   filteredCount: number;
 }
@@ -22,6 +23,7 @@ export const FinderHero: React.FC<FinderHeroProps> = ({
   statusFilter,
   onStatusFilterChange,
   onAddNew,
+  onOpenGallery,
   totalItemsCount,
   filteredCount,
 }) => {
@@ -115,9 +117,22 @@ export const FinderHero: React.FC<FinderHeroProps> = ({
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-xs text-slate-500 font-mono">
+            <span className="text-xs text-slate-500 font-mono hidden sm:inline">
               {t.finder.showingCount} <strong>{filteredCount}</strong> / <strong>{totalItemsCount}</strong>
             </span>
+
+            {onOpenGallery && (
+              <button
+                type="button"
+                onClick={onOpenGallery}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-amber-800 bg-amber-100/90 hover:bg-amber-200 border border-amber-300/80 rounded-xl shadow-2xs transition-colors"
+                title={t.finder.viewGallery}
+              >
+                <ImageIcon className="w-3.5 h-3.5 text-amber-700" />
+                <span>{t.finder.viewGallery}</span>
+              </button>
+            )}
+
             <button
               type="button"
               onClick={onAddNew}

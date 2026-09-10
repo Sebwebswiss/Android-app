@@ -8,10 +8,12 @@ import { ItemCard } from './components/ItemCard';
 import { LocationsView } from './components/LocationsView';
 import { ContainersView } from './components/ContainersView';
 import { AllItemsView } from './components/AllItemsView';
+import { VisualGalleryView } from './components/VisualGalleryView';
 import { ItemModal } from './components/ItemModal';
 import { MoveItemModal } from './components/MoveItemModal';
 import { BoxLabelModal } from './components/BoxLabelModal';
 import { BackupModal } from './components/BackupModal';
+import { ImagePreviewModal } from './components/ImagePreviewModal';
 import { DynamicIcon } from './components/DynamicIcon';
 import { LanguageProvider, useLanguage } from './i18n/LanguageContext';
 import {
@@ -25,7 +27,8 @@ import {
   CheckCircle2,
   Clock,
   UserCheck,
-  AlertTriangle
+  AlertTriangle,
+  Maximize2
 } from 'lucide-react';
 
 const STORAGE_KEYS = {
@@ -114,6 +117,10 @@ function AppContent() {
   const [boxLabelRoom, setBoxLabelRoom] = useState('');
 
   const [isBackupModalOpen, setIsBackupModalOpen] = useState(false);
+
+  // Large image preview modal state
+  const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
+  const [previewItem, setPreviewItem] = useState<Item | null>(null);
 
   // Search and Filter computation
   const filteredItems = useMemo(() => {
@@ -221,6 +228,11 @@ function AppContent() {
     setIsBoxLabelModalOpen(true);
   };
 
+  const handleOpenImagePreview = (item: Item) => {
+    setPreviewItem(item);
+    setIsPreviewModalOpen(true);
+  };
+
   const handleResetToDemo = () => {
     setItems(INITIAL_ITEMS);
     setRooms(INITIAL_ROOMS);
@@ -287,6 +299,7 @@ function AppContent() {
               selectedCategory={selectedCategory}
               onSelectedCategoryChange={setSelectedCategory}
               onAddNew={() => handleOpenAddModal()}
+              onOpenGallery={() => setCurrentView('gallery')}
               totalItemsCount={items.length}
               filteredCount={filteredItems.length}
             />
@@ -298,24 +311,43 @@ function AppContent() {
                   <Lightbulb className="w-4 h-4 text-amber-700" />
                   {t.finder.bestMatch}
                 </div>
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <div>
-                    <h3 className="text-lg sm:text-xl font-bold text-slate-900">
-                      {directHit.name}
-                    </h3>
-                    <div className="flex items-center gap-2 text-sm text-amber-950 font-medium mt-1">
-                      <MapPin className="w-4 h-4 text-amber-700 shrink-0" />
-                      <span>{t.finder.storedIn}</span>
-                      <strong className="text-slate-900 underline decoration-amber-400 decoration-2">
-                        {directHit.roomName}
-                      </strong>
-                      <span>›</span>
-                      <strong className="text-amber-900 font-bold">{directHit.container}</strong>
-                      {directHit.subLocation && (
-                        <span className="text-xs text-slate-600 italic">
-                          ({directHit.subLocation})
-                        </span>
-                      )}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="flex items-start gap-4">
+                    {directHit.photoUrl && (
+                      <button
+                        type="button"
+                        onClick={() => handleOpenImagePreview(directHit)}
+                        className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden shrink-0 border-2 border-amber-300/80 hover:border-amber-500 cursor-pointer shadow-xs group bg-white"
+                        title={t.itemCard.viewBigPhoto}
+                      >
+                        <img
+                          src={directHit.photoUrl}
+                          alt={directHit.name}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                        />
+                        <div className="absolute inset-0 bg-black/35 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
+                          <Maximize2 className="w-5 h-5" />
+                        </div>
+                      </button>
+                    )}
+                    <div>
+                      <h3 className="text-lg sm:text-xl font-bold text-slate-900">
+                        {directHit.name}
+                      </h3>
+                      <div className="flex items-center gap-2 text-sm text-amber-950 font-medium mt-1">
+                        <MapPin className="w-4 h-4 text-amber-700 shrink-0" />
+                        <span>{t.finder.storedIn}</span>
+                        <strong className="text-slate-900 underline decoration-amber-400 decoration-2">
+                          {directHit.roomName}
+                        </strong>
+                        <span>›</span>
+                        <strong className="text-amber-900 font-bold">{directHit.container}</strong>
+                        {directHit.subLocation && (
+                          <span className="text-xs text-slate-600 italic">
+                            ({directHit.subLocation})
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
 
@@ -376,6 +408,7 @@ function AppContent() {
                       onStatusChange={handleStatusChange}
                       onTagClick={(tag) => setSearchQuery(tag)}
                       onShowBoxLabel={handleOpenBoxLabel}
+                      onOpenImagePreview={handleOpenImagePreview}
                     />
                   ))}
                 </div>
@@ -445,10 +478,26 @@ function AppContent() {
             onStatusChange={handleStatusChange}
             onShowBoxLabel={handleOpenBoxLabel}
             onAddNew={() => handleOpenAddModal()}
+            onOpenImagePreview={handleOpenImagePreview}
           />
         )}
 
-        {/* VIEW 3: BY LOCATION & ROOMS */}
+        {/* VIEW 3: VISUAL PHOTO SEARCH & GALLERY */}
+        {currentView === 'gallery' && (
+          <VisualGalleryView
+            items={items}
+            rooms={rooms}
+            categories={categories}
+            onOpenImagePreview={handleOpenImagePreview}
+            onEditItem={handleOpenEditModal}
+            onMoveItem={handleOpenMoveModal}
+            onStatusChange={handleStatusChange}
+            onShowBoxLabel={handleOpenBoxLabel}
+            onAddNew={() => handleOpenAddModal()}
+          />
+        )}
+
+        {/* VIEW 4: BY LOCATION & ROOMS */}
         {currentView === 'by-location' && (
           <LocationsView
             rooms={rooms}
@@ -458,10 +507,11 @@ function AppContent() {
             onStatusChange={handleStatusChange}
             onShowBoxLabel={handleOpenBoxLabel}
             onAddNewItemInRoom={(roomId, container) => handleOpenAddModal(roomId, container)}
+            onOpenImagePreview={handleOpenImagePreview}
           />
         )}
 
-        {/* VIEW 4: CONTAINERS & QR CODE LABELS */}
+        {/* VIEW 5: CONTAINERS & QR CODE LABELS */}
         {currentView === 'containers' && (
           <ContainersView
             items={items}
@@ -523,6 +573,16 @@ function AppContent() {
         categories={categories}
         onImportData={handleImportData}
         onResetToDemo={handleResetToDemo}
+      />
+
+      {/* 5. Large Image Preview Modal */}
+      <ImagePreviewModal
+        isOpen={isPreviewModalOpen}
+        onClose={() => setIsPreviewModalOpen(false)}
+        item={previewItem}
+        onEdit={handleOpenEditModal}
+        onMove={handleOpenMoveModal}
+        onShowBoxLabel={handleOpenBoxLabel}
       />
 
       {/* Footer */}

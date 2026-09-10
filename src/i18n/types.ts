@@ -6,6 +6,7 @@ export interface Translations {
   totalSavedBadge: string;
   nav: {
     finder: string;
+    gallery: string;
     allItems: string;
     rooms: string;
     containers: string;
@@ -46,6 +47,8 @@ export interface Translations {
     viewAllRooms: string;
     itemCountSingular: string;
     itemCountPlural: string;
+    onlyWithPhotos: string;
+    viewGallery: string;
   };
   status: {
     available: string;
@@ -63,6 +66,32 @@ export interface Translations {
     putBack: string;
     move: string;
     edit: string;
+    viewBigPhoto: string;
+    noPhoto: string;
+  };
+  gallery: {
+    title: string;
+    subtitle: string;
+    searchPlaceholder: string;
+    onlyWithPhotosFilter: string;
+    allRoomsFilter: string;
+    allCategoriesFilter: string;
+    clickToEnlarge: string;
+    noPhotosFound: string;
+    noPhotosDesc: string;
+    addPhotoPrompt: string;
+    itemsWithPhotoCount: string;
+  };
+  imagePreview: {
+    title: string;
+    close: string;
+    editItem: string;
+    location: string;
+    boxAndQR: string;
+    status: string;
+    category: string;
+    notes: string;
+    quantity: string;
   };
   allItems: {
     title: string;

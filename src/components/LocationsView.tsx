@@ -13,6 +13,7 @@ interface LocationsViewProps {
   onStatusChange: (itemId: string, status: any) => void;
   onShowBoxLabel: (containerName: string, roomName: string) => void;
   onAddNewItemInRoom: (roomId: string, container?: string) => void;
+  onOpenImagePreview?: (item: Item) => void;
 }
 
 export const LocationsView: React.FC<LocationsViewProps> = ({
@@ -23,6 +24,7 @@ export const LocationsView: React.FC<LocationsViewProps> = ({
   onStatusChange,
   onShowBoxLabel,
   onAddNewItemInRoom,
+  onOpenImagePreview,
 }) => {
   const { t, getRoomName, getRoomDesc } = useLanguage();
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
@@ -170,6 +172,7 @@ export const LocationsView: React.FC<LocationsViewProps> = ({
                 onMove={onMoveItem}
                 onStatusChange={onStatusChange}
                 onShowBoxLabel={onShowBoxLabel}
+                onOpenImagePreview={onOpenImagePreview}
               />
             ))}
           </div>

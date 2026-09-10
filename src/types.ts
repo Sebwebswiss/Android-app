@@ -37,4 +37,4 @@ export interface CategoryDefinition {
   color: string;
 }
 
-export type ViewMode = 'finder' | 'all-items' | 'by-location' | 'containers' | 'item-details';
+export type ViewMode = 'finder' | 'gallery' | 'all-items' | 'by-location' | 'containers' | 'item-details';

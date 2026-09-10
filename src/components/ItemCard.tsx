@@ -1,6 +1,19 @@
 import React from 'react';
 import { Item, ItemStatus } from '../types';
-import { MapPin, Box, Tag, ArrowRightLeft, Edit, Clock, UserCheck, AlertTriangle, CheckCircle2, QrCode } from 'lucide-react';
+import {
+  MapPin,
+  Box,
+  Tag,
+  ArrowRightLeft,
+  Edit,
+  Clock,
+  UserCheck,
+  AlertTriangle,
+  CheckCircle2,
+  QrCode,
+  Maximize2,
+  Camera
+} from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
 
 interface ItemCardProps {
@@ -10,6 +23,7 @@ interface ItemCardProps {
   onStatusChange: (itemId: string, newStatus: ItemStatus) => void;
   onTagClick?: (tag: string) => void;
   onShowBoxLabel?: (containerName: string, roomName: string) => void;
+  onOpenImagePreview?: (item: Item) => void;
   searchQuery?: string;
 }
 
@@ -20,6 +34,7 @@ export const ItemCard: React.FC<ItemCardProps> = ({
   onStatusChange,
   onTagClick,
   onShowBoxLabel,
+  onOpenImagePreview,
 }) => {
   const { t, getCategoryName } = useLanguage();
 
@@ -66,6 +81,26 @@ export const ItemCard: React.FC<ItemCardProps> = ({
         style={{ backgroundColor: item.colorTag || '#E2E8F0' }}
       />
 
+      {/* Optional Photo Header Banner */}
+      {item.photoUrl && (
+        <div
+          onClick={() => onOpenImagePreview && onOpenImagePreview(item)}
+          className="relative w-full h-40 bg-slate-100 cursor-pointer overflow-hidden group/img flex items-center justify-center border-b border-slate-100"
+          title={t.itemCard.viewBigPhoto}
+        >
+          <img
+            src={item.photoUrl}
+            alt={item.name}
+            className="w-full h-full object-cover group-hover/img:scale-105 transition-transform duration-300"
+            loading="lazy"
+          />
+          <div className="absolute inset-0 bg-black/35 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center gap-1.5 text-white text-xs font-semibold backdrop-blur-2xs">
+            <Maximize2 className="w-4 h-4" />
+            <span>{t.itemCard.viewBigPhoto}</span>
+          </div>
+        </div>
+      )}
+
       <div className="p-4 sm:p-5 flex-1">
         {/* Category & Status Row */}
         <div className="flex items-center justify-between gap-2 mb-2.5">
@@ -77,7 +112,12 @@ export const ItemCard: React.FC<ItemCardProps> = ({
 
         {/* Title and Quantity */}
         <div className="flex items-start justify-between gap-3 mb-2">
-          <h3 className="text-base font-bold text-slate-900 leading-snug group-hover:text-amber-900 transition-colors">
+          <h3
+            onClick={() => onOpenImagePreview && onOpenImagePreview(item)}
+            className={`text-base font-bold text-slate-900 leading-snug group-hover:text-amber-900 transition-colors ${
+              onOpenImagePreview ? 'cursor-pointer hover:underline' : ''
+            }`}
+          >
             {item.name}
           </h3>
           <span className="shrink-0 text-xs font-semibold px-2 py-0.5 bg-slate-100 text-slate-700 rounded-full border border-slate-200">
@@ -185,15 +225,30 @@ export const ItemCard: React.FC<ItemCardProps> = ({
           </button>
         </div>
 
-        <button
-          type="button"
-          onClick={() => onEdit(item)}
-          className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-200 rounded-md transition-colors"
-          title={t.itemCard.edit}
-        >
-          <Edit className="w-4 h-4" />
-        </button>
+        <div className="flex items-center gap-1">
+          {/* Big Photo Preview button */}
+          {item.photoUrl && onOpenImagePreview && (
+            <button
+              type="button"
+              onClick={() => onOpenImagePreview(item)}
+              className="p-1.5 text-amber-700 hover:text-amber-900 hover:bg-amber-100 rounded-md transition-colors"
+              title={t.itemCard.viewBigPhoto}
+            >
+              <Maximize2 className="w-4 h-4" />
+            </button>
+          )}
+
+          <button
+            type="button"
+            onClick={() => onEdit(item)}
+            className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-200 rounded-md transition-colors"
+            title={t.itemCard.edit}
+          >
+            <Edit className="w-4 h-4" />
+          </button>
+        </div>
       </div>
     </div>
   );
 };
+

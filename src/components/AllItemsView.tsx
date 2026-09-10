@@ -13,6 +13,7 @@ interface AllItemsViewProps {
   onStatusChange: (itemId: string, status: ItemStatus) => void;
   onShowBoxLabel: (containerName: string, roomName: string) => void;
   onAddNew: () => void;
+  onOpenImagePreview?: (item: Item) => void;
 }
 
 export const AllItemsView: React.FC<AllItemsViewProps> = ({
@@ -24,6 +25,7 @@ export const AllItemsView: React.FC<AllItemsViewProps> = ({
   onStatusChange,
   onShowBoxLabel,
   onAddNew,
+  onOpenImagePreview,
 }) => {
   const { t, language, getRoomName, getCategoryName } = useLanguage();
   const [filterCategory, setFilterCategory] = useState<string>('all');
@@ -194,6 +196,7 @@ export const AllItemsView: React.FC<AllItemsViewProps> = ({
               onMove={onMoveItem}
               onStatusChange={onStatusChange}
               onShowBoxLabel={onShowBoxLabel}
+              onOpenImagePreview={onOpenImagePreview}
             />
           ))}
         </div>
@@ -216,10 +219,34 @@ export const AllItemsView: React.FC<AllItemsViewProps> = ({
                 {sorted.map(item => (
                   <tr key={item.id} className="hover:bg-amber-50/40 transition-colors">
                     <td className="px-4 py-3">
-                      <div className="font-bold text-slate-900">{item.name}</div>
-                      {item.description && (
-                        <div className="text-[11px] text-slate-500 truncate max-w-xs">{item.description}</div>
-                      )}
+                      <div className="flex items-center gap-2.5">
+                        {item.photoUrl && (
+                          <button
+                            type="button"
+                            onClick={() => onOpenImagePreview && onOpenImagePreview(item)}
+                            className="relative w-10 h-10 rounded-lg overflow-hidden shrink-0 border border-slate-200 hover:scale-110 transition-transform cursor-pointer"
+                            title={t.itemCard.viewBigPhoto}
+                          >
+                            <img
+                              src={item.photoUrl}
+                              alt={item.name}
+                              className="w-full h-full object-cover"
+                            />
+                          </button>
+                        )}
+                        <div className="min-w-0">
+                          <button
+                            type="button"
+                            onClick={() => onOpenImagePreview && onOpenImagePreview(item)}
+                            className="font-bold text-slate-900 hover:text-amber-800 text-left cursor-pointer transition-colors block"
+                          >
+                            {item.name}
+                          </button>
+                          {item.description && (
+                            <div className="text-[11px] text-slate-500 truncate max-w-xs">{item.description}</div>
+                          )}
+                        </div>
+                      </div>
                     </td>
                     <td className="px-4 py-3">
                       <div className="font-semibold text-slate-800">{item.roomName}</div>
