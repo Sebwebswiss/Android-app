@@ -1,0 +1,15 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Preusmjeravanje...</title>
+    <script>
+      // Ako netko zaluta na /docs/ zbog starog browser cachea, vrati ga na root aplikacije
+      var target = window.location.pathname.replace(/\/docs\/?.*$/, '') + '/';
+      window.location.replace(target);
+    </script>
+  </head>
+  <body>
+    <p>Učitavanje aplikacije...</p>
+  </body>
+</html>

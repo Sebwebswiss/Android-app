@@ -98,13 +98,15 @@ export const RoomModal: React.FC<RoomModalProps> = ({
       return;
     }
 
-    const roomId = roomToEdit
-      ? roomToEdit.id
-      : name
-          .toLowerCase()
-          .trim()
-          .replace(/[^\w\s-]/g, '')
-          .replace(/\s+/g, '-') + '-' + Math.random().toString(36).substring(2, 6);
+    const slug =
+      name
+        .toLowerCase()
+        .trim()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-') || 'soba';
+    const roomId = roomToEdit ? roomToEdit.id : `${slug}-${Date.now().toString(36)}`;
 
     onSave({
       id: roomId,
@@ -334,13 +336,14 @@ export const RoomModal: React.FC<RoomModalProps> = ({
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-colors"
+                  className="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
                 >
                   {t.roomModal.cancelBtn}
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 rounded-xl shadow-xs transition-colors"
+                  onClick={(e) => handleSubmit(e)}
+                  className="px-4 py-2 text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 active:bg-amber-800 rounded-xl shadow-xs transition-colors cursor-pointer"
                 >
                   {t.roomModal.saveBtn}
                 </button>

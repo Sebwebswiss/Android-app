@@ -49,8 +49,9 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Navigation Tabs */}
           <nav className="hidden md:flex items-center gap-1 bg-slate-100/80 p-1 rounded-xl border border-slate-200/60">
             <button
+              type="button"
               onClick={() => onViewChange('finder')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                 currentView === 'finder'
                   ? 'bg-white text-amber-900 shadow-xs'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
@@ -61,8 +62,9 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
 
             <button
+              type="button"
               onClick={() => onViewChange('gallery')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                 currentView === 'gallery'
                   ? 'bg-white text-amber-900 shadow-xs'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
@@ -73,8 +75,9 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
 
             <button
+              type="button"
               onClick={() => onViewChange('all-items')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                 currentView === 'all-items'
                   ? 'bg-white text-slate-900 shadow-xs'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
@@ -85,8 +88,9 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
 
             <button
+              type="button"
               onClick={() => onViewChange('by-location')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                 currentView === 'by-location'
                   ? 'bg-white text-slate-900 shadow-xs'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
@@ -97,8 +101,9 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
 
             <button
+              type="button"
               onClick={() => onViewChange('containers')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                 currentView === 'containers'
                   ? 'bg-white text-slate-900 shadow-xs'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
@@ -174,8 +179,9 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Mobile Sub-Navigation */}
         <div className="flex md:hidden items-center justify-around py-2 border-t border-slate-100 text-xs">
           <button
+            type="button"
             onClick={() => onViewChange('finder')}
-            className={`flex flex-col items-center gap-0.5 py-1 px-2 rounded-lg ${
+            className={`flex flex-col items-center gap-0.5 py-1 px-2 rounded-lg cursor-pointer ${
               currentView === 'finder' ? 'text-amber-700 font-bold' : 'text-slate-500'
             }`}
           >
@@ -183,8 +189,9 @@ export const Header: React.FC<HeaderProps> = ({
             <span>{t.nav.search}</span>
           </button>
           <button
+            type="button"
             onClick={() => onViewChange('gallery')}
-            className={`flex flex-col items-center gap-0.5 py-1 px-2 rounded-lg ${
+            className={`flex flex-col items-center gap-0.5 py-1 px-2 rounded-lg cursor-pointer ${
               currentView === 'gallery' ? 'text-amber-700 font-bold' : 'text-slate-500'
             }`}
           >
@@ -192,8 +199,9 @@ export const Header: React.FC<HeaderProps> = ({
             <span>{t.nav.gallery}</span>
           </button>
           <button
+            type="button"
             onClick={() => onViewChange('all-items')}
-            className={`flex flex-col items-center gap-0.5 py-1 px-2 rounded-lg ${
+            className={`flex flex-col items-center gap-0.5 py-1 px-2 rounded-lg cursor-pointer ${
               currentView === 'all-items' ? 'text-amber-700 font-bold' : 'text-slate-500'
             }`}
           >
@@ -201,8 +209,9 @@ export const Header: React.FC<HeaderProps> = ({
             <span>{t.nav.allItems}</span>
           </button>
           <button
+            type="button"
             onClick={() => onViewChange('by-location')}
-            className={`flex flex-col items-center gap-0.5 py-1 px-2 rounded-lg ${
+            className={`flex flex-col items-center gap-0.5 py-1 px-2 rounded-lg cursor-pointer ${
               currentView === 'by-location' ? 'text-amber-700 font-bold' : 'text-slate-500'
             }`}
           >
@@ -210,8 +219,9 @@ export const Header: React.FC<HeaderProps> = ({
             <span>{t.nav.rooms}</span>
           </button>
           <button
+            type="button"
             onClick={() => onViewChange('containers')}
-            className={`flex flex-col items-center gap-0.5 py-1 px-2 rounded-lg ${
+            className={`flex flex-col items-center gap-0.5 py-1 px-2 rounded-lg cursor-pointer ${
               currentView === 'containers' ? 'text-amber-700 font-bold' : 'text-slate-500'
             }`}
           >

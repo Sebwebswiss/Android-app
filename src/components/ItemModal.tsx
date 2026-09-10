@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Item, Room, CategoryDefinition, ItemStatus } from '../types';
 import { X, Plus, Trash2, Camera, MapPin, Box, Tag, AlertCircle, Check, Info } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
@@ -15,6 +15,7 @@ interface ItemModalProps {
   defaultContainer?: string;
   onOpenAddRoom?: () => void;
   onOpenManageCategories?: () => void;
+  onQuickAddCategory?: (categoryName: string) => void;
 }
 
 export const ItemModal: React.FC<ItemModalProps> = ({
@@ -29,6 +30,7 @@ export const ItemModal: React.FC<ItemModalProps> = ({
   defaultContainer,
   onOpenAddRoom,
   onOpenManageCategories,
+  onQuickAddCategory,
 }) => {
   const { t, getRoomName, getCategoryName } = useLanguage();
   const [name, setName] = useState('');
@@ -47,40 +49,83 @@ export const ItemModal: React.FC<ItemModalProps> = ({
   const [photoUrl, setPhotoUrl] = useState<string | undefined>(undefined);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  // Quick category inline adder state
+  const [isQuickAddingCategory, setIsQuickAddingCategory] = useState(false);
+  const [quickCategoryName, setQuickCategoryName] = useState('');
+
+  // Refs to track modal lifecycle and prevent wiping form inputs when categories or rooms change
+  const prevIsOpenRef = useRef(false);
+  const prevItemToEditIdRef = useRef<string | null | undefined>(undefined);
+  const prevCategoriesRef = useRef<CategoryDefinition[]>(categories);
+  const prevRoomsRef = useRef<Room[]>(rooms);
+
   useEffect(() => {
-    if (itemToEdit) {
-      setName(itemToEdit.name);
-      setDescription(itemToEdit.description || '');
-      setQuantity(itemToEdit.quantity || 1);
-      setRoomId(itemToEdit.roomId);
-      setContainer(itemToEdit.container || '');
-      setContainerCode(itemToEdit.containerCode || '');
-      setSubLocation(itemToEdit.subLocation || '');
-      setCategory(itemToEdit.category || categories[0]?.name || '');
-      setTagsString((itemToEdit.tags || []).join(', '));
-      setColorTag(itemToEdit.colorTag || '#3B82F6');
-      setStatus(itemToEdit.status || 'available');
-      setLoanedTo(itemToEdit.loanedTo || '');
-      setNotes(itemToEdit.notes || '');
-      setPhotoUrl(itemToEdit.photoUrl);
-    } else {
-      setName('');
-      setDescription('');
-      setQuantity(1);
-      setRoomId(defaultRoomId || rooms[0]?.id || 'tavan');
-      setContainer(defaultContainer || '');
-      setContainerCode('');
-      setSubLocation('');
-      setCategory(categories[0]?.name || 'Alati & Radionica');
-      setTagsString('');
-      setColorTag('#3B82F6');
-      setStatus('available');
-      setLoanedTo('');
-      setNotes('');
-      setPhotoUrl(undefined);
+    const wasJustOpened = isOpen && !prevIsOpenRef.current;
+    const itemChanged = itemToEdit?.id !== prevItemToEditIdRef.current;
+
+    // Only reset/initialize form when the modal is freshly opened or a different item is selected for edit
+    if (isOpen && (wasJustOpened || itemChanged)) {
+      if (itemToEdit) {
+        setName(itemToEdit.name);
+        setDescription(itemToEdit.description || '');
+        setQuantity(itemToEdit.quantity || 1);
+        setRoomId(itemToEdit.roomId);
+        setContainer(itemToEdit.container || '');
+        setContainerCode(itemToEdit.containerCode || '');
+        setSubLocation(itemToEdit.subLocation || '');
+        setCategory(itemToEdit.category || categories[0]?.name || '');
+        setTagsString((itemToEdit.tags || []).join(', '));
+        setColorTag(itemToEdit.colorTag || '#3B82F6');
+        setStatus(itemToEdit.status || 'available');
+        setLoanedTo(itemToEdit.loanedTo || '');
+        setNotes(itemToEdit.notes || '');
+        setPhotoUrl(itemToEdit.photoUrl);
+      } else {
+        setName('');
+        setDescription('');
+        setQuantity(1);
+        setRoomId(defaultRoomId || rooms[0]?.id || 'tavan');
+        setContainer(defaultContainer || '');
+        setContainerCode('');
+        setSubLocation('');
+        setCategory(categories[0]?.name || 'Alati & Radionica');
+        setTagsString('');
+        setColorTag('#3B82F6');
+        setStatus('available');
+        setLoanedTo('');
+        setNotes('');
+        setPhotoUrl(undefined);
+      }
+      setIsQuickAddingCategory(false);
+      setQuickCategoryName('');
+      setErrors({});
+    } else if (isOpen) {
+      // If modal was already open and a new category was added, auto-select it!
+      if (categories.length > prevCategoriesRef.current.length) {
+        const newlyAddedCategory = categories.find(
+          (c) => !prevCategoriesRef.current.some((pc) => pc.id === c.id)
+        );
+        if (newlyAddedCategory) {
+          setCategory(newlyAddedCategory.name);
+        }
+      }
+
+      // If a new room was added while open, auto-select it!
+      if (rooms.length > prevRoomsRef.current.length) {
+        const newlyAddedRoom = rooms.find(
+          (r) => !prevRoomsRef.current.some((pr) => pr.id === r.id)
+        );
+        if (newlyAddedRoom) {
+          setRoomId(newlyAddedRoom.id);
+        }
+      }
     }
-    setErrors({});
-  }, [itemToEdit, isOpen, defaultRoomId, defaultContainer, rooms, categories]);
+
+    prevIsOpenRef.current = isOpen;
+    prevItemToEditIdRef.current = itemToEdit?.id;
+    prevCategoriesRef.current = categories;
+    prevRoomsRef.current = rooms;
+  }, [isOpen, itemToEdit, defaultRoomId, defaultContainer, rooms, categories]);
 
   if (!isOpen) return null;
 
@@ -298,27 +343,85 @@ export const ItemModal: React.FC<ItemModalProps> = ({
                 <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider">
                   {t.itemModal.categoryLabel}
                 </label>
-                {onOpenManageCategories && (
+                <div className="flex items-center gap-2">
                   <button
                     type="button"
-                    onClick={onOpenManageCategories}
-                    className="text-[11px] font-semibold text-amber-700 hover:text-amber-800 hover:underline"
+                    onClick={() => {
+                      setIsQuickAddingCategory(!isQuickAddingCategory);
+                      setQuickCategoryName('');
+                    }}
+                    className="text-[11px] font-semibold text-amber-700 hover:text-amber-800 hover:underline cursor-pointer"
                   >
-                    ⚙️ {t.categoryModal.addCategoryBtn}
+                    {isQuickAddingCategory ? `✕ ${t.itemModal.cancelBtn}` : `+ ${t.categoryModal.addCategoryBtn}`}
                   </button>
-                )}
+                  {onOpenManageCategories && (
+                    <button
+                      type="button"
+                      onClick={onOpenManageCategories}
+                      className="text-[11px] font-semibold text-slate-500 hover:text-slate-700 hover:underline cursor-pointer"
+                      title={t.categoryModal.manageTitle}
+                    >
+                      ⚙️
+                    </button>
+                  )}
+                </div>
               </div>
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-sm text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
-              >
-                {categories.map((c) => (
-                  <option key={c.id} value={c.name}>
-                    {getCategoryName(c.name)}
-                  </option>
-                ))}
-              </select>
+
+              {isQuickAddingCategory ? (
+                <div className="flex items-center gap-1.5 animate-in fade-in">
+                  <input
+                    type="text"
+                    value={quickCategoryName}
+                    onChange={(e) => setQuickCategoryName(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        const trimmed = quickCategoryName.trim();
+                        if (trimmed) {
+                          if (onQuickAddCategory) {
+                            onQuickAddCategory(trimmed);
+                          }
+                          setCategory(trimmed);
+                          setIsQuickAddingCategory(false);
+                          setQuickCategoryName('');
+                        }
+                      }
+                    }}
+                    placeholder={t.categoryModal.namePlaceholder}
+                    autoFocus
+                    className="flex-1 px-3 py-2 text-xs border border-amber-300 rounded-xl bg-amber-50/20 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const trimmed = quickCategoryName.trim();
+                      if (trimmed) {
+                        if (onQuickAddCategory) {
+                          onQuickAddCategory(trimmed);
+                        }
+                        setCategory(trimmed);
+                        setIsQuickAddingCategory(false);
+                        setQuickCategoryName('');
+                      }
+                    }}
+                    className="px-3 py-2 text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 rounded-xl shrink-0 cursor-pointer shadow-xs"
+                  >
+                    <Check className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ) : (
+                <select
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-sm text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
+                >
+                  {categories.map((c) => (
+                    <option key={c.id} value={c.name}>
+                      {getCategoryName(c.name)}
+                    </option>
+                  ))}
+                </select>
+              )}
             </div>
 
             <div>
@@ -469,13 +572,14 @@ export const ItemModal: React.FC<ItemModalProps> = ({
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-xl transition-colors"
+                className="px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
               >
                 {t.itemModal.cancelBtn}
               </button>
               <button
                 type="submit"
-                className="inline-flex items-center gap-1.5 px-5 py-2.5 text-xs font-semibold text-white bg-amber-600 hover:bg-amber-700 rounded-xl shadow-xs transition-colors"
+                onClick={(e) => handleSubmit(e)}
+                className="inline-flex items-center gap-1.5 px-5 py-2.5 text-xs font-semibold text-white bg-amber-600 hover:bg-amber-700 active:bg-amber-800 rounded-xl shadow-xs transition-colors cursor-pointer"
               >
                 <Check className="w-4 h-4" />
                 {t.itemModal.saveBtn}

@@ -11,6 +11,7 @@ interface ManageCategoriesModalProps {
   items: Item[];
   onSaveCategory: (category: CategoryDefinition, previousName?: string) => void;
   onDeleteCategory: (categoryId: string, reassignToCategoryName?: string) => void;
+  onCategoryCreated?: (category: CategoryDefinition) => void;
 }
 
 const AVAILABLE_ICONS = [
@@ -56,8 +57,9 @@ export const ManageCategoriesModal: React.FC<ManageCategoriesModalProps> = ({
   items,
   onSaveCategory,
   onDeleteCategory,
+  onCategoryCreated,
 }) => {
-  const { t, getCategoryName } = useLanguage();
+  const { t, language, getCategoryName } = useLanguage();
 
   // Mode: list or edit/add
   const [editingCategory, setEditingCategory] = useState<CategoryDefinition | null>(null);
@@ -68,6 +70,7 @@ export const ManageCategoriesModal: React.FC<ManageCategoriesModalProps> = ({
   const [iconName, setIconName] = useState('Tag');
   const [color, setColor] = useState('#E11D48');
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
   // Delete reassign state
   const [deletingCategory, setDeletingCategory] = useState<CategoryDefinition | null>(null);
@@ -95,41 +98,77 @@ export const ManageCategoriesModal: React.FC<ManageCategoriesModalProps> = ({
     setDeletingCategory(null);
   };
 
-  const handleSaveForm = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name.trim()) {
+  const handleSaveForm = (e?: React.FormEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
+    const trimmedName = name.trim();
+    if (!trimmedName) {
       setError(t.categoryModal.nameRequired);
       return;
     }
 
-    if (editingCategory) {
-      onSaveCategory(
-        {
-          id: editingCategory.id,
-          name: name.trim(),
-          iconName,
-          color,
-        },
-        editingCategory.name
+    // Check for duplicate category names (excluding current category being edited)
+    const duplicate = categories.find(
+      (c) => c.name.toLowerCase() === trimmedName.toLowerCase() && c.id !== editingCategory?.id
+    );
+    if (duplicate) {
+      setError(
+        language === 'hr'
+          ? 'Kategorija s ovim nazivom već postoji!'
+          : 'A category with this name already exists!'
       );
-    } else {
-      const newId =
-        name
-          .toLowerCase()
-          .trim()
-          .replace(/[^\w\s-]/g, '')
-          .replace(/\s+/g, '-') + '-' + Math.random().toString(36).substring(2, 6);
+      return;
+    }
 
-      onSaveCategory({
-        id: newId,
-        name: name.trim(),
+    let savedCategory: CategoryDefinition;
+
+    if (editingCategory) {
+      savedCategory = {
+        id: editingCategory.id,
+        name: trimmedName,
         iconName,
         color,
-      });
+      };
+      onSaveCategory(savedCategory, editingCategory.name);
+    } else {
+      // Safe ID generation with diacritic stripping for Croatian letters (č, ć, ž, š, đ)
+      const slug = trimmedName
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-') || 'cat';
+      const newId = `${slug}-${Date.now().toString(36)}`;
+
+      savedCategory = {
+        id: newId,
+        name: trimmedName,
+        iconName,
+        color,
+      };
+      onSaveCategory(savedCategory);
+    }
+
+    // Notify listener (e.g. ItemModal to auto-select newly added category)
+    if (onCategoryCreated) {
+      onCategoryCreated(savedCategory);
+      onClose();
+      return;
     }
 
     setIsAdding(false);
     setEditingCategory(null);
+    setSuccessMessage(
+      language === 'hr'
+        ? `Kategorija "${trimmedName}" je uspješno spremljena!`
+        : `Category "${trimmedName}" saved successfully!`
+    );
+    setTimeout(() => {
+      setSuccessMessage('');
+    }, 3500);
   };
 
   const handleStartDelete = (cat: CategoryDefinition) => {
@@ -329,14 +368,16 @@ export const ManageCategoriesModal: React.FC<ManageCategoriesModalProps> = ({
                 onClick={() => {
                   setIsAdding(false);
                   setEditingCategory(null);
+                  setError('');
                 }}
-                className="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-colors"
+                className="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
               >
                 {t.categoryModal.cancelBtn}
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 rounded-xl shadow-xs transition-colors"
+                onClick={() => handleSaveForm()}
+                className="px-4 py-2 text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 active:bg-amber-800 rounded-xl shadow-xs transition-colors cursor-pointer"
               >
                 {t.categoryModal.saveBtn}
               </button>
@@ -345,6 +386,13 @@ export const ManageCategoriesModal: React.FC<ManageCategoriesModalProps> = ({
         ) : (
           /* List of Categories */
           <div className="p-6 space-y-4">
+            {successMessage && (
+              <div className="p-3 bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs font-semibold rounded-xl flex items-center gap-2 animate-in fade-in">
+                <Check className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>{successMessage}</span>
+              </div>
+            )}
+
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
                 {t.categoryModal.manageSubtitle}
@@ -352,7 +400,7 @@ export const ManageCategoriesModal: React.FC<ManageCategoriesModalProps> = ({
               <button
                 type="button"
                 onClick={handleStartAdd}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 rounded-xl shadow-xs transition-colors"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 rounded-xl shadow-xs transition-colors cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
                 {t.categoryModal.addCategoryBtn}

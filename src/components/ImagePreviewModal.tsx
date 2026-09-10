@@ -241,7 +241,7 @@ export const ImagePreviewModal: React.FC<ImagePreviewModalProps> = ({
                   onClose();
                   onShowBoxLabel(item.container, item.roomName);
                 }}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-amber-400 bg-amber-400/10 hover:bg-amber-400/20 border border-amber-400/30 rounded-xl transition-colors"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-amber-400 bg-amber-400/10 hover:bg-amber-400/20 border border-amber-400/30 rounded-xl transition-colors cursor-pointer"
               >
                 <QrCode className="w-3.5 h-3.5" />
                 {t.imagePreview.boxAndQR}
@@ -255,7 +255,7 @@ export const ImagePreviewModal: React.FC<ImagePreviewModalProps> = ({
                   onClose();
                   onMove(item);
                 }}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-xl transition-colors"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-xl transition-colors cursor-pointer"
               >
                 <ArrowRightLeft className="w-3.5 h-3.5" />
                 {t.itemCard.move}
@@ -271,7 +271,7 @@ export const ImagePreviewModal: React.FC<ImagePreviewModalProps> = ({
                   onClose();
                   onEdit(item);
                 }}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-white bg-amber-600 hover:bg-amber-500 rounded-xl shadow-xs transition-colors"
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-white bg-amber-600 hover:bg-amber-500 rounded-xl shadow-xs transition-colors cursor-pointer"
               >
                 <Edit className="w-3.5 h-3.5" />
                 {t.imagePreview.editItem}
@@ -281,7 +281,7 @@ export const ImagePreviewModal: React.FC<ImagePreviewModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-1.5 text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition-colors"
+              className="px-4 py-1.5 text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
             >
               {t.imagePreview.close}
             </button>

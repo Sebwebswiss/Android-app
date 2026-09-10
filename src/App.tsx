@@ -304,6 +304,25 @@ function AppContent() {
     setIsCategoryModalOpen(true);
   };
 
+  const handleQuickAddCategory = (categoryName: string) => {
+    const trimmed = categoryName.trim();
+    if (!trimmed) return;
+    const slug =
+      trimmed
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-') || 'cat';
+    const newCategory: CategoryDefinition = {
+      id: `${slug}-${Date.now().toString(36)}`,
+      name: trimmed,
+      iconName: 'Tag',
+      color: '#E11D48',
+    };
+    handleSaveCategory(newCategory);
+  };
+
   const handleSaveCategory = (savedCategory: CategoryDefinition, previousName?: string) => {
     setCategories((prev) => {
       const exists = prev.some((c) => c.id === savedCategory.id);
@@ -770,6 +789,7 @@ function AppContent() {
         defaultContainer={defaultContainer}
         onOpenAddRoom={handleOpenAddRoom}
         onOpenManageCategories={handleOpenManageCategories}
+        onQuickAddCategory={handleQuickAddCategory}
       />
 
       {/* 2. Move Item Modal */}

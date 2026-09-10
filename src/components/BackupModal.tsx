@@ -100,8 +100,9 @@ export const BackupModal: React.FC<BackupModalProps> = ({
               {t.backupModal.exportDesc}
             </p>
             <button
+              type="button"
               onClick={handleExportJson}
-              className="mt-2 w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-900 text-white rounded-xl text-xs font-semibold hover:bg-slate-800 transition-colors"
+              className="mt-2 w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-900 text-white rounded-xl text-xs font-semibold hover:bg-slate-800 transition-colors cursor-pointer"
             >
               <Download className="w-4 h-4" />
               {t.backupModal.exportBtn}
@@ -148,7 +149,7 @@ export const BackupModal: React.FC<BackupModalProps> = ({
                   onClose();
                 }
               }}
-              className="text-xs text-amber-700 hover:text-amber-800 font-medium px-2.5 py-1.5 rounded-lg hover:bg-amber-50"
+              className="text-xs text-amber-700 hover:text-amber-800 font-medium px-2.5 py-1.5 rounded-lg hover:bg-amber-50 cursor-pointer"
             >
               {t.backupModal.resetBtn}
             </button>

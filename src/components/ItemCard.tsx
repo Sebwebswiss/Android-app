@@ -181,7 +181,7 @@ export const ItemCard: React.FC<ItemCardProps> = ({
                 key={tag}
                 type="button"
                 onClick={() => onTagClick && onTagClick(tag)}
-                className="text-[10px] font-medium text-slate-600 bg-slate-100 hover:bg-amber-100 hover:text-amber-800 px-2 py-0.5 rounded-md transition-colors"
+                className="text-[10px] font-medium text-slate-600 bg-slate-100 hover:bg-amber-100 hover:text-amber-800 px-2 py-0.5 rounded-md transition-colors cursor-pointer"
               >
                 #{tag}
               </button>
@@ -199,7 +199,7 @@ export const ItemCard: React.FC<ItemCardProps> = ({
               type="button"
               onClick={() => onStatusChange(item.id, 'in_use')}
               title={t.itemCard.takeItem}
-              className="text-[11px] font-medium text-slate-600 hover:text-sky-700 hover:bg-sky-50 px-2 py-1 rounded-md transition-colors"
+              className="text-[11px] font-medium text-slate-600 hover:text-sky-700 hover:bg-sky-50 px-2 py-1 rounded-md transition-colors cursor-pointer"
             >
               {t.itemCard.takeItem}
             </button>
@@ -208,7 +208,7 @@ export const ItemCard: React.FC<ItemCardProps> = ({
               type="button"
               onClick={() => onStatusChange(item.id, 'available')}
               title={t.itemCard.putBack}
-              className="text-[11px] font-medium text-emerald-700 hover:bg-emerald-50 px-2 py-1 rounded-md transition-colors"
+              className="text-[11px] font-medium text-emerald-700 hover:bg-emerald-50 px-2 py-1 rounded-md transition-colors cursor-pointer"
             >
               {t.itemCard.putBack}
             </button>
@@ -218,7 +218,7 @@ export const ItemCard: React.FC<ItemCardProps> = ({
             type="button"
             onClick={() => onMove(item)}
             title={t.itemCard.move}
-            className="text-[11px] font-medium text-slate-600 hover:text-amber-800 hover:bg-amber-50 px-2 py-1 rounded-md transition-colors inline-flex items-center gap-1"
+            className="text-[11px] font-medium text-slate-600 hover:text-amber-800 hover:bg-amber-50 px-2 py-1 rounded-md transition-colors inline-flex items-center gap-1 cursor-pointer"
           >
             <ArrowRightLeft className="w-3 h-3" />
             {t.itemCard.move}
@@ -231,7 +231,7 @@ export const ItemCard: React.FC<ItemCardProps> = ({
             <button
               type="button"
               onClick={() => onOpenImagePreview(item)}
-              className="p-1.5 text-amber-700 hover:text-amber-900 hover:bg-amber-100 rounded-md transition-colors"
+              className="p-1.5 text-amber-700 hover:text-amber-900 hover:bg-amber-100 rounded-md transition-colors cursor-pointer"
               title={t.itemCard.viewBigPhoto}
             >
               <Maximize2 className="w-4 h-4" />
@@ -241,7 +241,7 @@ export const ItemCard: React.FC<ItemCardProps> = ({
           <button
             type="button"
             onClick={() => onEdit(item)}
-            className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-200 rounded-md transition-colors"
+            className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-200 rounded-md transition-colors cursor-pointer"
             title={t.itemCard.edit}
           >
             <Edit className="w-4 h-4" />

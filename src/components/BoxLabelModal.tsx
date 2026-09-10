@@ -134,8 +134,9 @@ export const BoxLabelModal: React.FC<BoxLabelModalProps> = ({
         {/* Modal Actions */}
         <div className="flex items-center justify-between px-6 py-4 bg-slate-50 border-t border-slate-100">
           <button
+            type="button"
             onClick={handleCopySummary}
-            className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-100 transition-colors"
+            className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
           >
             {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
             {copied ? t.boxLabelModal.copied : t.boxLabelModal.copySummaryBtn}
@@ -143,8 +144,9 @@ export const BoxLabelModal: React.FC<BoxLabelModalProps> = ({
 
           <div className="flex items-center gap-2">
             <button
+              type="button"
               onClick={handlePrint}
-              className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-slate-900 rounded-lg hover:bg-slate-800 transition-colors shadow-xs"
+              className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-slate-900 rounded-lg hover:bg-slate-800 transition-colors shadow-xs cursor-pointer"
             >
               <Printer className="w-3.5 h-3.5" />
               {t.boxLabelModal.printBtn}
