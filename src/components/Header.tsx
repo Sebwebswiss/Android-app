@@ -1,6 +1,6 @@
 import React from 'react';
 import { ViewMode } from '../types';
-import { Grid, MapPin, Box, Plus, Database, Compass, PackageCheck, Languages, Image as ImageIcon } from 'lucide-react';
+import { Grid, MapPin, Box, Plus, Database, Compass, PackageCheck, Languages, Image as ImageIcon, Tags } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
 
 interface HeaderProps {
@@ -8,6 +8,7 @@ interface HeaderProps {
   onViewChange: (view: ViewMode) => void;
   onAddNew: () => void;
   onOpenBackup: () => void;
+  onOpenCategories: () => void;
   totalItems: number;
 }
 
@@ -16,6 +17,7 @@ export const Header: React.FC<HeaderProps> = ({
   onViewChange,
   onAddNew,
   onOpenBackup,
+  onOpenCategories,
   totalItems,
 }) => {
   const { language, setLanguage, t } = useLanguage();
@@ -138,6 +140,16 @@ export const Header: React.FC<HeaderProps> = ({
                 <span className="hidden xs:inline">EN</span>
               </button>
             </div>
+
+            <button
+              type="button"
+              onClick={onOpenCategories}
+              title={t.nav.manageCategories}
+              className="p-2 text-slate-600 hover:text-amber-700 hover:bg-slate-100 rounded-xl transition-colors flex items-center gap-1.5"
+            >
+              <Tags className="w-4 h-4 text-amber-600" />
+              <span className="hidden xl:inline text-xs font-semibold text-slate-700">{t.nav.manageCategories}</span>
+            </button>
 
             <button
               type="button"

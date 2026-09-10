@@ -14,6 +14,9 @@ import { MoveItemModal } from './components/MoveItemModal';
 import { BoxLabelModal } from './components/BoxLabelModal';
 import { BackupModal } from './components/BackupModal';
 import { ImagePreviewModal } from './components/ImagePreviewModal';
+import { RoomModal } from './components/RoomModal';
+import { ManageCategoriesModal } from './components/ManageCategoriesModal';
+import { ContainerModal, ContainerModalMode } from './components/ContainerModal';
 import { DynamicIcon } from './components/DynamicIcon';
 import { LanguageProvider, useLanguage } from './i18n/LanguageContext';
 import {
@@ -117,6 +120,20 @@ function AppContent() {
   const [boxLabelRoom, setBoxLabelRoom] = useState('');
 
   const [isBackupModalOpen, setIsBackupModalOpen] = useState(false);
+
+  // Room modal state
+  const [isRoomModalOpen, setIsRoomModalOpen] = useState(false);
+  const [roomToEdit, setRoomToEdit] = useState<Room | null>(null);
+
+  // Category modal state
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+
+  // Container modal state
+  const [isContainerModalOpen, setIsContainerModalOpen] = useState(false);
+  const [containerModalMode, setContainerModalMode] = useState<ContainerModalMode>('new');
+  const [containerModalRoomId, setContainerModalRoomId] = useState<string>('');
+  const [containerModalName, setContainerModalName] = useState<string>('');
+  const [containerModalCode, setContainerModalCode] = useState<string>('');
 
   // Large image preview modal state
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
@@ -233,6 +250,206 @@ function AppContent() {
     setIsPreviewModalOpen(true);
   };
 
+  // Handlers for Rooms
+  const handleOpenAddRoom = () => {
+    setRoomToEdit(null);
+    setIsRoomModalOpen(true);
+  };
+
+  const handleOpenEditRoom = (room: Room) => {
+    setRoomToEdit(room);
+    setIsRoomModalOpen(true);
+  };
+
+  const handleSaveRoom = (savedRoom: Room) => {
+    setRooms((prev) => {
+      const exists = prev.some((r) => r.id === savedRoom.id);
+      if (exists) {
+        return prev.map((r) => (r.id === savedRoom.id ? savedRoom : r));
+      } else {
+        return [...prev, savedRoom];
+      }
+    });
+
+    setItems((prev) =>
+      prev.map((it) =>
+        it.roomId === savedRoom.id ? { ...it, roomName: savedRoom.name } : it
+      )
+    );
+  };
+
+  const handleDeleteRoom = (roomId: string, reassignToRoomId?: string) => {
+    if (reassignToRoomId) {
+      const targetRoom = rooms.find((r) => r.id === reassignToRoomId);
+      const targetRoomName = targetRoom ? targetRoom.name : '';
+      setItems((prev) =>
+        prev.map((it) =>
+          it.roomId === roomId
+            ? { ...it, roomId: reassignToRoomId, roomName: targetRoomName }
+            : it
+        )
+      );
+    } else {
+      setItems((prev) => prev.filter((it) => it.roomId !== roomId));
+    }
+
+    setRooms((prev) => prev.filter((r) => r.id !== roomId));
+    if (selectedRoom === roomId) {
+      setSelectedRoom('all');
+    }
+  };
+
+  // Handlers for Categories
+  const handleOpenManageCategories = () => {
+    setIsCategoryModalOpen(true);
+  };
+
+  const handleSaveCategory = (savedCategory: CategoryDefinition, previousName?: string) => {
+    setCategories((prev) => {
+      const exists = prev.some((c) => c.id === savedCategory.id);
+      if (exists) {
+        return prev.map((c) => (c.id === savedCategory.id ? savedCategory : c));
+      } else {
+        return [...prev, savedCategory];
+      }
+    });
+
+    if (previousName && previousName !== savedCategory.name) {
+      setItems((prev) =>
+        prev.map((it) =>
+          it.category?.toLowerCase() === previousName.toLowerCase()
+            ? { ...it, category: savedCategory.name }
+            : it
+        )
+      );
+      if (selectedCategory.toLowerCase() === previousName.toLowerCase()) {
+        setSelectedCategory(savedCategory.name);
+      }
+    }
+  };
+
+  const handleDeleteCategory = (categoryId: string, reassignToCategoryName?: string) => {
+    const targetCat = categories.find((c) => c.id === categoryId);
+    if (!targetCat) return;
+
+    if (reassignToCategoryName) {
+      setItems((prev) =>
+        prev.map((it) =>
+          it.category?.toLowerCase() === targetCat.name.toLowerCase()
+            ? { ...it, category: reassignToCategoryName }
+            : it
+        )
+      );
+    } else {
+      const fallbackCat = categories.find((c) => c.id !== categoryId)?.name || 'Ostalo';
+      setItems((prev) =>
+        prev.map((it) =>
+          it.category?.toLowerCase() === targetCat.name.toLowerCase()
+            ? { ...it, category: fallbackCat }
+            : it
+        )
+      );
+    }
+
+    setCategories((prev) => prev.filter((c) => c.id !== categoryId));
+    if (selectedCategory.toLowerCase() === targetCat.name.toLowerCase()) {
+      setSelectedCategory('all');
+    }
+  };
+
+  // Handlers for Containers
+  const handleOpenAddContainer = (roomId?: string) => {
+    setContainerModalMode('new');
+    setContainerModalRoomId(roomId || rooms[0]?.id || '');
+    setContainerModalName('');
+    setContainerModalCode('');
+    setIsContainerModalOpen(true);
+  };
+
+  const handleOpenEditContainer = (roomId: string, containerName: string, code?: string) => {
+    setContainerModalMode('edit');
+    setContainerModalRoomId(roomId);
+    setContainerModalName(containerName);
+    setContainerModalCode(code || '');
+    setIsContainerModalOpen(true);
+  };
+
+  const handleOpenMoveContainer = (roomId: string, containerName: string) => {
+    setContainerModalMode('move');
+    setContainerModalRoomId(roomId);
+    setContainerModalName(containerName);
+    setIsContainerModalOpen(true);
+  };
+
+  const handleSaveNewContainer = (roomId: string, containerName: string, containerCode?: string) => {
+    handleOpenAddModal(roomId, containerName);
+  };
+
+  const handleRenameContainer = (
+    roomId: string,
+    oldContainerName: string,
+    newContainerName: string,
+    newCode?: string
+  ) => {
+    setItems((prev) =>
+      prev.map((it) => {
+        if (it.roomId === roomId && it.container === oldContainerName) {
+          return {
+            ...it,
+            container: newContainerName,
+            containerCode: newCode !== undefined ? newCode : it.containerCode,
+            updatedAt: new Date().toISOString(),
+          };
+        }
+        return it;
+      })
+    );
+  };
+
+  const handleMoveEntireContainer = (
+    oldRoomId: string,
+    containerName: string,
+    targetRoomId: string
+  ) => {
+    const targetRoom = rooms.find((r) => r.id === targetRoomId);
+    const targetRoomName = targetRoom ? targetRoom.name : '';
+    setItems((prev) =>
+      prev.map((it) => {
+        if (it.roomId === oldRoomId && it.container === containerName) {
+          return {
+            ...it,
+            roomId: targetRoomId,
+            roomName: targetRoomName,
+            updatedAt: new Date().toISOString(),
+          };
+        }
+        return it;
+      })
+    );
+  };
+
+  const handleDeleteContainer = (roomId: string, containerName: string, deleteItems: boolean) => {
+    if (deleteItems) {
+      setItems((prev) =>
+        prev.filter((it) => !(it.roomId === roomId && it.container === containerName))
+      );
+    } else {
+      setItems((prev) =>
+        prev.map((it) => {
+          if (it.roomId === roomId && it.container === containerName) {
+            return {
+              ...it,
+              container: 'Bez kutije / raspakirano',
+              containerCode: undefined,
+              updatedAt: new Date().toISOString(),
+            };
+          }
+          return it;
+        })
+      );
+    }
+  };
+
   const handleResetToDemo = () => {
     setItems(INITIAL_ITEMS);
     setRooms(INITIAL_ROOMS);
@@ -281,6 +498,7 @@ function AppContent() {
         onViewChange={setCurrentView}
         onAddNew={() => handleOpenAddModal()}
         onOpenBackup={() => setIsBackupModalOpen(true)}
+        onOpenCategories={handleOpenManageCategories}
         totalItems={items.length}
       />
 
@@ -508,6 +726,8 @@ function AppContent() {
             onShowBoxLabel={handleOpenBoxLabel}
             onAddNewItemInRoom={(roomId, container) => handleOpenAddModal(roomId, container)}
             onOpenImagePreview={handleOpenImagePreview}
+            onAddRoom={handleOpenAddRoom}
+            onEditRoom={handleOpenEditRoom}
           />
         )}
 
@@ -527,6 +747,10 @@ function AppContent() {
               setCurrentView('finder');
             }}
             onShowBoxLabel={handleOpenBoxLabel}
+            onAddContainer={handleOpenAddContainer}
+            onEditContainer={handleOpenEditContainer}
+            onMoveContainer={handleOpenMoveContainer}
+            onDeleteContainer={handleOpenEditContainer}
           />
         )}
       </main>
@@ -544,6 +768,8 @@ function AppContent() {
         categories={categories}
         defaultRoomId={defaultRoomId}
         defaultContainer={defaultContainer}
+        onOpenAddRoom={handleOpenAddRoom}
+        onOpenManageCategories={handleOpenManageCategories}
       />
 
       {/* 2. Move Item Modal */}
@@ -583,6 +809,58 @@ function AppContent() {
         onEdit={handleOpenEditModal}
         onMove={handleOpenMoveModal}
         onShowBoxLabel={handleOpenBoxLabel}
+      />
+
+      {/* 6. Room CRUD Modal */}
+      <RoomModal
+        isOpen={isRoomModalOpen}
+        onClose={() => setIsRoomModalOpen(false)}
+        roomToEdit={roomToEdit}
+        existingRooms={rooms}
+        onSaveRoom={handleSaveRoom}
+        onDeleteRoom={handleDeleteRoom}
+        itemsCountInRoom={
+          roomToEdit
+            ? items.filter((it) => it.roomId === roomToEdit.id).length
+            : 0
+        }
+        availableRoomsForReassign={
+          roomToEdit
+            ? rooms.filter((r) => r.id !== roomToEdit.id)
+            : rooms
+        }
+      />
+
+      {/* 7. Manage Categories Modal */}
+      <ManageCategoriesModal
+        isOpen={isCategoryModalOpen}
+        onClose={() => setIsCategoryModalOpen(false)}
+        categories={categories}
+        items={items}
+        onSaveCategory={handleSaveCategory}
+        onDeleteCategory={handleDeleteCategory}
+      />
+
+      {/* 8. Container CRUD Modal */}
+      <ContainerModal
+        isOpen={isContainerModalOpen}
+        onClose={() => setIsContainerModalOpen(false)}
+        mode={containerModalMode}
+        rooms={rooms}
+        initialRoomId={containerModalRoomId}
+        initialContainerName={containerModalName}
+        initialCode={containerModalCode}
+        itemsCount={
+          items.filter(
+            (it) =>
+              it.roomId === containerModalRoomId &&
+              it.container.trim().toLowerCase() === containerModalName.trim().toLowerCase()
+          ).length
+        }
+        onSaveNew={handleSaveNewContainer}
+        onRename={handleRenameContainer}
+        onMoveEntireContainer={handleMoveEntireContainer}
+        onDeleteContainer={handleDeleteContainer}
       />
 
       {/* Footer */}

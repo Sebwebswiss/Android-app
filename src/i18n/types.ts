@@ -13,6 +13,7 @@ export interface Translations {
     backup: string;
     addItem: string;
     search: string;
+    manageCategories: string;
   };
   finder: {
     heroTag: string;
@@ -132,6 +133,9 @@ export interface Translations {
     addFirstItemInRoom: string;
     boxesCountUnit: string;
     itemsCountUnit: string;
+    addRoomBtn: string;
+    editRoomBtn: string;
+    deleteRoomBtn: string;
   };
   containers: {
     title: string;
@@ -144,6 +148,10 @@ export interface Translations {
     noContainersFound: string;
     noContainersDesc: string;
     codeLabel: string;
+    addContainerBtn: string;
+    editContainerBtn: string;
+    moveContainerBtn: string;
+    deleteContainerBtn: string;
   };
   itemModal: {
     newTitle: string;
@@ -224,6 +232,64 @@ export interface Translations {
     resetBtn: string;
     resetConfirm: string;
     closeBtn: string;
+  };
+  roomModal: {
+    newTitle: string;
+    editTitle: string;
+    nameLabel: string;
+    namePlaceholder: string;
+    nameRequired: string;
+    descLabel: string;
+    descPlaceholder: string;
+    iconLabel: string;
+    colorLabel: string;
+    saveBtn: string;
+    cancelBtn: string;
+    deleteBtn: string;
+    deleteConfirm: string;
+    itemsInRoomWarning: string;
+    reassignToRoomLabel: string;
+    deleteRoomWithItemsBtn: string;
+    reassignAndSaveBtn: string;
+  };
+  categoryModal: {
+    manageTitle: string;
+    manageSubtitle: string;
+    newTitle: string;
+    editTitle: string;
+    addCategoryBtn: string;
+    nameLabel: string;
+    namePlaceholder: string;
+    nameRequired: string;
+    iconLabel: string;
+    colorLabel: string;
+    saveBtn: string;
+    cancelBtn: string;
+    deleteBtn: string;
+    deleteConfirm: string;
+    itemsInCategoryWarning: string;
+    reassignToCategoryLabel: string;
+    countItems: string;
+    closeBtn: string;
+  };
+  containerModal: {
+    newTitle: string;
+    editTitle: string;
+    moveTitle: string;
+    nameLabel: string;
+    namePlaceholder: string;
+    nameRequired: string;
+    roomLabel: string;
+    codeLabel: string;
+    codePlaceholder: string;
+    saveBtn: string;
+    cancelBtn: string;
+    deleteBtn: string;
+    deleteConfirm: string;
+    moveBtn: string;
+    newRoomLabel: string;
+    moveSubtitle: string;
+    countItemsInside: string;
   };
   footer: {
     tagline: string;

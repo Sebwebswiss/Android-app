@@ -13,6 +13,8 @@ interface ItemModalProps {
   categories: CategoryDefinition[];
   defaultRoomId?: string;
   defaultContainer?: string;
+  onOpenAddRoom?: () => void;
+  onOpenManageCategories?: () => void;
 }
 
 export const ItemModal: React.FC<ItemModalProps> = ({
@@ -25,6 +27,8 @@ export const ItemModal: React.FC<ItemModalProps> = ({
   categories,
   defaultRoomId,
   defaultContainer,
+  onOpenAddRoom,
+  onOpenManageCategories,
 }) => {
   const { t, getRoomName, getCategoryName } = useLanguage();
   const [name, setName] = useState('');
@@ -214,9 +218,20 @@ export const ItemModal: React.FC<ItemModalProps> = ({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
               <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1">
-                  {t.itemModal.roomLabel}
-                </label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-medium text-slate-700">
+                    {t.itemModal.roomLabel}
+                  </label>
+                  {onOpenAddRoom && (
+                    <button
+                      type="button"
+                      onClick={onOpenAddRoom}
+                      className="text-[11px] font-semibold text-amber-700 hover:text-amber-800 hover:underline"
+                    >
+                      + {t.locations.addRoomBtn}
+                    </button>
+                  )}
+                </div>
                 <select
                   value={roomId}
                   onChange={(e) => setRoomId(e.target.value)}
@@ -279,9 +294,20 @@ export const ItemModal: React.FC<ItemModalProps> = ({
           {/* Category & Status */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                {t.itemModal.categoryLabel}
-              </label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                  {t.itemModal.categoryLabel}
+                </label>
+                {onOpenManageCategories && (
+                  <button
+                    type="button"
+                    onClick={onOpenManageCategories}
+                    className="text-[11px] font-semibold text-amber-700 hover:text-amber-800 hover:underline"
+                  >
+                    ⚙️ {t.categoryModal.addCategoryBtn}
+                  </button>
+                )}
+              </div>
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}

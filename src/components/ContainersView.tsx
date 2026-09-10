@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Item, Room } from '../types';
-import { Box, QrCode, Search, ArrowRight, PackageOpen } from 'lucide-react';
+import { Box, QrCode, Search, ArrowRight, PackageOpen, Plus, Edit2, ArrowRightLeft, Trash2 } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
 
 interface ContainersViewProps {
@@ -8,6 +8,10 @@ interface ContainersViewProps {
   rooms: Room[];
   onSelectContainer: (containerName: string, roomName: string) => void;
   onShowBoxLabel: (containerName: string, roomName: string) => void;
+  onAddContainer: () => void;
+  onEditContainer: (roomId: string, containerName: string, code?: string) => void;
+  onMoveContainer: (roomId: string, containerName: string) => void;
+  onDeleteContainer: (roomId: string, containerName: string) => void;
 }
 
 export const ContainersView: React.FC<ContainersViewProps> = ({
@@ -15,6 +19,10 @@ export const ContainersView: React.FC<ContainersViewProps> = ({
   rooms,
   onSelectContainer,
   onShowBoxLabel,
+  onAddContainer,
+  onEditContainer,
+  onMoveContainer,
+  onDeleteContainer,
 }) => {
   const { t, getRoomName } = useLanguage();
   const [filterRoom, setFilterRoom] = useState<string>('all');
@@ -66,6 +74,14 @@ export const ContainersView: React.FC<ContainersViewProps> = ({
             {t.containers.subtitle}
           </p>
         </div>
+        <button
+          type="button"
+          onClick={onAddContainer}
+          className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 rounded-xl shadow-xs transition-colors"
+        >
+          <Plus className="w-4 h-4" />
+          {t.containers.addContainerBtn}
+        </button>
       </div>
 
       {/* Filters */}
@@ -113,18 +129,47 @@ export const ContainersView: React.FC<ContainersViewProps> = ({
               >
                 <div>
                   <div className="flex items-center justify-between mb-3">
-                    <span
-                      className="text-[11px] font-semibold px-2.5 py-0.5 rounded-md text-white"
-                      style={{ backgroundColor: roomObj?.color || '#475569' }}
-                    >
-                      {localizedRoomName}
-                    </span>
-
-                    {c.code && (
-                      <span className="font-mono text-[11px] text-slate-400 bg-slate-100 px-2 py-0.5 rounded">
-                        {c.code}
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span
+                        className="text-[11px] font-semibold px-2.5 py-0.5 rounded-md text-white"
+                        style={{ backgroundColor: roomObj?.color || '#475569' }}
+                      >
+                        {localizedRoomName}
                       </span>
-                    )}
+
+                      {c.code && (
+                        <span className="font-mono text-[11px] text-slate-400 bg-slate-100 px-2 py-0.5 rounded">
+                          {c.code}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => onEditContainer(c.roomId, c.container, c.code)}
+                        className="p-1.5 text-slate-400 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors"
+                        title={t.containers.editContainerBtn}
+                      >
+                        <Edit2 className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => onMoveContainer(c.roomId, c.container)}
+                        className="p-1.5 text-slate-400 hover:text-amber-700 hover:bg-amber-50 rounded-lg transition-colors"
+                        title={t.containers.moveContainerBtn}
+                      >
+                        <ArrowRightLeft className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => onDeleteContainer(c.roomId, c.container)}
+                        className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        title={t.containers.deleteContainerBtn}
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </div>
 
                   <h3 className="font-bold text-base text-slate-900 group-hover:text-amber-900 mb-1 leading-snug">
